@@ -761,10 +761,6 @@ EOF
                     $dftTheme,
                     $input, $output
                 );
-                if(!$this->cache->removeStyleCache($theme)) {
-                    $output->writeln('<error>The theme ['.$theme.'] doesn\'t exists</error>');
-                    break;
-                }
 
                 // Ask for file to override
                 $file = $this->askQuestion(
