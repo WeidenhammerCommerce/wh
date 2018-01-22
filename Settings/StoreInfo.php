@@ -11,7 +11,7 @@ use Magento\Framework\View\Design\Theme\ThemeProviderInterface;
 class StoreInfo
 {
     /* Set your custom variables here */
-    const COMPANY_NAME = 'Hammer'; // folder name under app/code/[COMPANY_NAME]
+    const COMPANY_NAME = 'MyCompanyName'; // folder where you place your modules (app/code/[COMPANY_NAME])
     /* ------------------------------ */
     const LOCALIZATION = 'en_US'; // folder name under pub/static/frontend/COMPANY/THEME/[LOCALIZATION]
     const KEEP_FILES = array('.htaccess'); // files you don't want to remove when clearing the cache
