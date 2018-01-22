@@ -91,6 +91,12 @@ $ bin/magento wh cache:styles (alias c:s)
 $ bin/magento wh cache:all (alias c:a)
 ```
 
+### Removes selected cache (separated by comma) 
+* (string) Folders to remove (example: 1,3,5)
+```
+$ bin/magento wh cache:custom (alias c:c)
+```
+
 
 
 ## :eye: CREATION commands

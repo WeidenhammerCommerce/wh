@@ -36,7 +36,6 @@ class Cache
     }
 
 
-
     /**
      * Remove cache for Templates & Layouts
      */
@@ -45,6 +44,8 @@ class Cache
         $this->deleteDirectory($this->varCache);
         $this->deleteDirectory($this->varPageCache);
     }
+
+
     /**
      * Remove cache for Templates & Layouts
      * @param $themeRoot
@@ -91,6 +92,9 @@ class Cache
     }
 
 
+
+
+
     /**
      * Remove content for given folder
      * @param $path
@@ -112,8 +116,34 @@ class Cache
                 unlink($file);
             endif;
         endforeach;
-        rmdir($path);
 
+        if(!$this->dirIsEmpty($path)) {
+            return true;
+        }
+
+        try {
+            rmdir($path);
+        } catch(\Exception $e) {
+            echo 'Path: '.$path.'. Error: '.$e->getMessage();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if given folder is empty
+     * @param $dir
+     * @return bool
+     */
+    protected function dirIsEmpty($dir)
+    {
+        $handle = opendir($dir);
+        while (false !== ($entry = readdir($handle))) {
+            if ($entry != '.' && $entry != '..') {
+                return false;
+            }
+        }
         return true;
     }
 }
