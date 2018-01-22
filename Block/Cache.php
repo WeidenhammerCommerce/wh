@@ -93,32 +93,26 @@ class Cache
 
     /**
      * Remove content for given folder
-     * @param $dir
+     * @param $path
      * @return bool
      */
-    protected function deleteDirectory($dir)
+    protected function deleteDirectory($path)
     {
-        if (!file_exists($dir)) {
-            return true;
-        }
-        if (!is_dir($dir) || is_link($dir)) {
-            return unlink($dir);
-        }
-
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-            if (in_array($item, $this->storeInfo->getKeepFiles())) {
-                continue;
-            }
-            if (!$this->deleteDirectory($dir . "/" . $item, false)) {
-                chmod($dir . "/" . $item, 0777);
-                if (!$this->deleteDirectory($dir . "/" . $item, false)) {
-                    return false;
+        $files = glob($path . '/*');
+        foreach ($files as $file) :
+            if(is_dir($file)) :
+                if ($file == '.' || $file == '..') {
+                    continue;
                 }
-            }
-        }
+                if (in_array($file, $this->storeInfo->getKeepFiles())) {
+                    continue;
+                }
+                $this->deleteDirectory($file);
+            else :
+                unlink($file);
+            endif;
+        endforeach;
+        rmdir($path);
 
         return true;
     }
