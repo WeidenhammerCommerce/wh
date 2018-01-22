@@ -238,12 +238,16 @@ EOF
             case 'c:s' :
                 $dftTheme = $this->storeInfo->getDefaultThemeName();
 
-                // Ask for theme name
-                $theme = $this->askQuestion(
-                    'Name of the theme (Hit <comment>Enter</comment> to use <info>'.$dftTheme.'</info>):',
-                    $dftTheme,
-                    $input, $output
-                );
+                // If multistore, ask for theme name
+                if($this->storeInfo->isMultistore()) {
+                    $theme = $this->askQuestion(
+                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        $dftTheme,
+                        $input, $output
+                    );
+                } else {
+                    $theme = $dftTheme;
+                }
 
                 // Clear the theme styles
                 if($this->cache->removeStyleCache($theme));
@@ -755,12 +759,16 @@ EOF
             case 'o:t' :
                 $dftTheme = $this->storeInfo->getDefaultThemeName();
 
-                // Ask for theme name
-                $theme = $this->askQuestion(
-                    'Name of the theme (Hit <comment>Enter</comment> to use <info>'.$dftTheme.'</info>):',
-                    $dftTheme,
-                    $input, $output
-                );
+                // If multistore, ask for theme name
+                if($this->storeInfo->isMultistore()) {
+                    $theme = $this->askQuestion(
+                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        $dftTheme,
+                        $input, $output
+                    );
+                } else {
+                    $theme = $dftTheme;
+                }
 
                 // Ask for file to override
                 $file = $this->askQuestion(
@@ -773,29 +781,8 @@ EOF
                     break;
                 }
 
-                // Get file
-                $vFile = str_replace('code/vendor', 'vendor', $file);
-                // ie of $vFile: vendor/magento/module-checkout/view/frontend/templates/cart.phtml
-
-                // Get module name
-                $m = explode('/', $vFile);
-                $module = explode('module-', $m[2]);
-                $module = end($module);
-                $module = str_replace('-', ' ', $module);
-                $module = ucwords($module);
-                $module = str_replace(' ', '', $module); // ie: Checkout
-                $module = 'Magento_'.$module;
-
-                // Get template path
-                $t = explode('view', $vFile);
-                $template = end($t);
-                $template = str_replace('frontend/', '', $template);
-                $template = str_replace('base/', '', $template); // ie: /templates/cart.phtml
-
-                // Get full path
-                $fullPath = 'app/design/frontend/'.$this->storeInfo->getDefaultThemeCompany().'/'.$theme.'/';
-                $fullPath .= $module;
-                $fullPath .= $template;
+                // Get path to override template
+                $fullPath = $this->create->overrideTemplate($file, $theme);
 
                 $output->writeln('
 Override the template by copying it to <info>'.$fullPath.'</info>
