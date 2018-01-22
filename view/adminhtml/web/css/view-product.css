@@ -1,0 +1,30 @@
+.product-view-url {
+    background: #CCFFBB;
+    border: none;
+    border-radius: 0;
+    color: #333333;
+    font-size: 1.4rem;
+    margin: 0 0 20px;
+    padding: 1.8rem 4rem 1.8rem 5rem;
+    position: relative;
+    text-shadow: none;
+}
+
+.product-view-url:before {
+    color: #007bdb;
+    content: '\e61a';
+    font-family: 'Admin Icons';
+    font-size: 1.9rem;
+    font-style: normal;
+    font-weight: 400;
+    height: auto;
+    left: 1.9rem;
+    line-height: inherit;
+    margin-top: -1.3rem;
+    position: absolute;
+    speak: none;
+    text-shadow: none;
+    top: 50%;
+    width: auto;
+    background: none;
+}

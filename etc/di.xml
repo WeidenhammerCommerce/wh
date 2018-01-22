@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Create new command -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="wh" xsi:type="object">Hammer\WH\Model\WH</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Add new console style formats -->
+    <!--<preference for="Symfony\Component\Console\Formatter\OutputFormatter"
+        type="Hammer\WH\Settings\WHOutputFormatter"/>-->
+</config>

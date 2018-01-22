@@ -1,0 +1,20 @@
+{
+  "name": "COMPANYNAMELOWER/MODULENAMELOWER",
+  "description": "A description of the MODULENAME module",
+  "type": "magento2-module",
+  "version": "MODULEVERSION",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
+  "require": {
+    "php": "~5.5.0|~5.6.0|~7.0.0",
+    "magento/framework": "101.0.*"
+  },
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "COMPANYNAME\\MODULENAME\\": ""
+    }
+  }
+}

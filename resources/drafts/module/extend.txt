@@ -1,0 +1,7 @@
+<?php
+namespace NAMESPACENAME;
+
+class CLASSNAME extends \EXTENDFROM
+{
+    // Your code goes here...
+}

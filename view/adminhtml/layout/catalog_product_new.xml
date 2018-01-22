@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Hammer_WH::css/view-product.css" />
+    </head>
+    <body>
+        <referenceContainer name="page.content">
+            <block class="Hammer\WH\Block\ViewProduct"
+                   name="view-product-url"
+                   after="page.main.actions"
+                   template="Hammer_WH::view-product.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

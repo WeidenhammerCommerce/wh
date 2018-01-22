@@ -1,0 +1,23 @@
+<?php
+/**
+ * Show a "View Product" link at the top of the
+ * Admin > Products > Catalog > [Product] page
+ *
+ * @var $block \Hammer\WH\Block\ViewProduct
+ */
+?>
+<?php
+$_product = $block->getCurrentProduct();
+$_id = $_product->getId();
+
+$_baseUrl = $block->getBaseUrl();
+$_seoUrl =  $_baseUrl.$_product->getUrlKey().'.html';
+
+$_m2BaseUrl = $_baseUrl.'catalog/product/view/id/'.$_id;
+$_viewProduct = !empty($_product->getUrlKey()) ? $_seoUrl : $_m2BaseUrl;
+?>
+<?php if($_id): ?>
+    <div class="product-view-url">
+        <a href="<?php echo $_viewProduct; ?>" target="_blank">View Product</a>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,18 @@
+//
+//  THEMENAME Styles
+//  - Extends from the Magento/blank theme
+//  _____________________________________________________
+
+/* Extended styles */
+/* @import '_buttons_extend.less'; */
+
+/* Sections */
+/* @import '_header.less'; */
+
+/* Libraries */
+/* @import '_slick.less'; */
+
+/* Common styles */
+html, body {
+  max-width: 100%;
+}

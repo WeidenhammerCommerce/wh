@@ -1,0 +1,26 @@
+//
+// THEMENAME variables
+// _____________________________________________________
+
+/* Grid */
+@max_2056: 2056px;
+@min_1440: 1440px;
+@max_1439: 1439px;
+@min_1280: 1280px;
+@max_1279: 1279px;
+@min_1024: 1024px;
+@max_1023: 1023px;
+@min_992: 992px;
+@max_991: 991px;
+@min_768: 768px;
+@max_767: 767px; /* tablet */
+@min_640: 640px;
+@max_639: 639px;
+@min_480: 480px;
+@max_479: 479px; /* mobile */
+@min_320: 320px;
+@max_319: 319px;
+
+/* Scheme color */
+@THEMENAMELOWER-dark-blue: #053D5D;
+@THEMENAMELOWER-light-blue: #58B5E6;
