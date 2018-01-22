@@ -246,11 +246,8 @@ EOF
                 );
 
                 // Clear the theme styles
-                if(!$this->cache->removeStyleCache($theme)) {
-                    $output->writeln('<error>The theme ['.$theme.'] doesn\'t exists</error>');
-                    break;
-                }
-                $output->writeln('Styles cache cleared for the theme <info>' . $theme . '.</info>');
+                if($this->cache->removeStyleCache($theme));
+                $output->writeln('Cache cleared for the theme <info>' . $theme . '.</info>');
                 break;
 
 
