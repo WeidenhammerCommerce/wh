@@ -896,31 +896,4 @@ Please remember to remove the Magento copyright once you copied it.
         $style = new OutputFormatterStyle('blue', 'black', array('bold', 'underscore'));
         $output->getFormatter()->setStyle('title', $style);
     }
-
-    /**
-     * @param $output
-     * @return mixed
-     */
-    /*private function moduleCreator($options, $allSelected, $output)
-    {
-        $dialog = $this->getHelper('dialog');
-
-        $default = count($options) - 1;
-
-        $selected = $dialog->select(
-            $output,
-            'Module Creator',
-            $options,
-            $default
-        );
-
-        var_dump($allSelected);
-
-        if($selected == $default) {
-            return $allSelected;
-        } else {
-            $allSelected[] = $selected;
-            $this->moduleCreator($options, $allSelected, $output);
-        }
-    }*/
 }
