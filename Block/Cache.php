@@ -16,7 +16,10 @@ class Cache
     protected $varGeneration;
     protected $varViewPreprocessed;
     protected $pubStatic;
+
+    protected $cssPath;
     protected $themeStyles;
+    protected $varViewPreprocessedCss;
 
     public function __construct(
         DirectoryList $directoryList,
@@ -32,7 +35,10 @@ class Cache
         $this->varGeneration = $this->root.'/var/generation/';
         $this->varViewPreprocessed = $this->root.'/var/view_preprocessed/';
         $this->pubStatic = $this->root.'/pub/static/';
-        $this->themeStyles = $this->pubStatic.'frontend/'.$this->storeInfo->getDefaultThemeCompany().'/THEMENAME/'.$this->storeInfo->getLocalization().'/css/';
+
+        $this->cssPath = 'frontend/'.$this->storeInfo->getDefaultThemeCompany().'/THEMENAME/'.$this->storeInfo->getLocalization().'/css/';
+        $this->themeStyles = $this->pubStatic.$this->cssPath;
+        $this->varViewPreprocessedCss = $this->varViewPreprocessed.'css/'.$this->cssPath;
     }
 
 
@@ -53,6 +59,7 @@ class Cache
     public function removeStyleCache($theme)
     {
         $pubCss = str_replace('THEMENAME', $theme, $this->themeStyles);
+        $preprocessedCss = str_replace('THEMENAME', $theme, $this->varViewPreprocessedCss);
 
         if(!is_dir($pubCss)){
             return false;
@@ -60,7 +67,7 @@ class Cache
             $this->deleteDirectory($pubCss);
             $this->deleteDirectory($this->varCache);
             $this->deleteDirectory($this->varPageCache);
-            $this->deleteDirectory($this->varViewPreprocessed);
+            $this->deleteDirectory($preprocessedCss);
             return true;
         }
     }
