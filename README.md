@@ -15,7 +15,7 @@ $ composer require hammer/wh:dev-master
 ```
 - Enter your Company name in the following file:
 ```
-app/code/Hammer/WH/Settings/StoreInfo.php
+vendor/hammer/wh/Settings/StoreInfo.php
 ```
 - Enable the WH module:
 ```
