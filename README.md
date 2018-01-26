@@ -23,13 +23,16 @@ $ bin/magento module:enable Hammer_WH
 $ bin/magento s:up
 $ bin/magento c:f
 ```
-- You are good to go!
+- You are good to go! You can check it was installed correctly by running:
+```
+$ bin/magento wh
+```
 
 ### Update the WH module to its latest version
 
-- Go to the WH folder within your project (app/code/Hammer/WH by default) and run:
+- Go to your Magento root folder and run:
 ```
-$ git pull origin master
+$ composer update hammer/wh
 ```
 
 Note: remember to always develop in *Developer* mode
