@@ -11,7 +11,7 @@
 
 - Go to your Magento root folder and run:
 ```
-$ composer require hammer/wh
+$ composer require hammer/wh:dev-master
 ```
 - Enter your Company name in the following file:
 ```
