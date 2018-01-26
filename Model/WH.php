@@ -326,36 +326,6 @@ EOF
                     break;
                 }
 
-                // Module creator
-                /*$options = array(
-                    'Extend class with di.xml',
-                    'Option A',
-                    'Option B',
-                    'Option C',
-                    'Done!'
-                );
-                $allSelected = $this->moduleCreator($options, array(), $output);
-                var_dump($allSelected); exit;*/
-
-                // Ask for the module version
-                /*$dftVersion = $this->storeInfo->getModuleVersion();
-                $version = $this->askQuestion(
-                    'Version (Hit <comment>Enter</comment> to use default version <info>'.$dftVersion.'</info>):',
-                    $dftVersion,
-                    $input, $output
-                );*/
-
-                // Ask for creation of composer file
-                /*$dftComposer = $this->storeInfo->getComposerFile() ? 'Y' : 'N';
-                $composer = $this->askQuestion(
-                    'Composer file (Hit <comment>Enter</comment> to use default value <info>'.$dftComposer.'</info>):',
-                    $dftComposer,
-                    $input, $output
-                );
-                if($composer !== 'Y' && $composer !== 'y' && $composer !== 'N' && $composer !== 'n') {
-                    $output->writeln('<error>Please enter Y or N</error>');
-                    break;
-                }*/
 
                 // Ask for an install file
                 $installOption = $this->askQuestion(
