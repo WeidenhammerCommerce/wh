@@ -1,11 +1,12 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
-## v.0.0.3
+## v.0.0.4
 
 - Added create:module
 - Added create:theme
 - Added create:dummy
+- Improved clean:styles
 
 ## :eye: Installation
 

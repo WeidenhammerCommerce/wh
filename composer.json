@@ -2,7 +2,6 @@
     "name": "hammer/wh",
     "description": "It creates a new shell command with a handful of M2 tools",
     "type": "magento2-module",
-    "version": "0.0.1",
     "license": "MIT",
     "authors": [
         {
@@ -19,6 +18,7 @@
             "Hammer\\WH\\": ""
         }
     },
-    "minimum-stability": "dev",
+    "version": "0.0.2",
+    "minimum-stability": "0.0.2",
     "prefer-stable" : true
 }
