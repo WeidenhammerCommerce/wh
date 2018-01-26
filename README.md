@@ -14,7 +14,7 @@
 ```
 $ composer require hammer/wh:dev-master
 ```
-- Enter your Company name by running:(and other optional parameters) in the following file:
+- Enter your Company name (and other optional parameters) in the following file:
 ```
 vendor/hammer/wh/Settings/StoreInfo.php
 ```
@@ -33,7 +33,7 @@ $ bin/magento wh
 
 - Go to your Magento root folder and run:
 ```
-$ composer update hammer/wh
+$ composer update hammer/wh:dev-master
 ```
 
 Note: remember to always develop in *Developer* mode
