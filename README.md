@@ -11,7 +11,7 @@
 
 - Go to your Magento root folder and run:
 ```
-$ git clone git@github.com:spraxis/wh.git app/code/Hammer/WH
+$ composer require hammer/wh
 ```
 - Enter your Company name in the following file:
 ```

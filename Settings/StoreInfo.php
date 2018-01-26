@@ -144,4 +144,20 @@ class StoreInfo
     {
         return self::DUMMY_PRODUCTS;
     }
+
+    
+
+    public function isMultistore()
+    {
+        $storeManagerDataList = $this->storeManager->getStores();
+        $options = array();
+
+        foreach ($storeManagerDataList as $key => $value) {
+            if($value['is_active']) {
+                $options[] = ['label' => $value['name'] . ' - ' . $value['code'], 'value' => $key];
+            }
+        }
+
+        return count($options) > 1 ? true : false;
+    }
 }

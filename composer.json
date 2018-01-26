@@ -19,5 +19,7 @@
         "psr-4": {
             "Hammer\\WH\\": ""
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable" : true
 }
