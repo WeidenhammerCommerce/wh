@@ -145,6 +145,9 @@ class Cache
      */
     protected function dirIsEmpty($dir)
     {
+        if (!is_dir($dir)) {
+            return;
+        }
         $handle = opendir($dir);
         while (false !== ($entry = readdir($handle))) {
             if ($entry != '.' && $entry != '..') {
