@@ -50,8 +50,12 @@ class StoreInfo
     public function getDefaultThemeCompany()
     {
         $themeData = $this->getThemeData();
-        $segments = explode('/', $themeData['theme_path']);
-        $company = reset($segments);
+        if(array_key_exists('theme_path', $themeData)) {
+            $segments = explode('/', $themeData['theme_path']);
+            $company = reset($segments);
+        } else {
+            $company = null;
+        }
 
         return $company;
     }
