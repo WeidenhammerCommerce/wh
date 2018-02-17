@@ -112,12 +112,12 @@ class Cache
         $files = glob($path . '/*');
         foreach ($files as $file) :
             if(is_dir($file)) :
-                if ($file == '.' || $file == '..') {
+                if ($file == '.' || $file == '..' || $file == '.htaccess') {
                     continue;
                 }
-                if (in_array($file, $this->storeInfo->getKeepFiles())) {
+                /*if (in_array($file, $this->storeInfo->getKeepFiles())) {
                     continue;
-                }
+                }*/
                 $this->deleteDirectory($file);
             else :
                 unlink($file);

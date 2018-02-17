@@ -3,6 +3,7 @@
 
 ## v.0.0.6
 
+- Started using the env.php file to stored user variables
 - Added create:dump
 - Added shell commands (permissions, 777, static)
 
@@ -25,9 +26,17 @@
 ```
 $ composer require hammer/wh:dev-master
 ```
-- Enter your Company name (and other optional parameters) in the following file:
+- Enter your Company name (where you place your modules: app/code/[CompanyName])) and other optional parameters in the following array, and add it to the app/etc/env.php file:
 ```
-vendor/hammer/wh/Settings/StoreInfo.php
+'wh' =>
+  array (
+      'company_name' => 'CompanyName',
+      'localization' => 'en_US',
+      'composer_files' => 1,
+      'module_version' => '0.0.1',
+      'dummy_categories' => 1,
+      'dummy_products' => 1
+  )
 ```
 - Enable the WH module:
 ```

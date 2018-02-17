@@ -3,6 +3,7 @@ namespace Hammer\WH\Settings;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\View\DesignInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -10,27 +11,19 @@ use Magento\Framework\View\Design\Theme\ThemeProviderInterface;
 
 class StoreInfo
 {
-    /* Set your custom variables here */
-    const COMPANY_NAME = 'MyCompanyName'; // folder where you place your modules (app/code/[COMPANY_NAME])
-    /* ------------------------------ */
-    const LOCALIZATION = 'en_US'; // folder name under pub/static/frontend/COMPANY/THEME/[LOCALIZATION]
-    const KEEP_FILES = array('.htaccess'); // files you don't want to remove when clearing the cache
-    const COMPOSER_FILE = true; // if true, it creates a composer file within the new modules
-    const MODULE_VERSION = '0.0.1'; // default version of new modules
-    const DUMMY_CATEGORIES = 1; // quantity of dummy categories by default
-    const DUMMY_PRODUCTS = 1; // quantity of dummy products by default
-    /* ------------------------------ */
-
+    protected $deploymentConfig;
     protected $scopeConfig;
     protected $storeManager;
     protected $themeProvider;
 
     public function __construct(
+        DeploymentConfig $deploymentConfig,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         ThemeProviderInterface $themeProvider
     )
     {
+        $this->deploymentConfig = $deploymentConfig;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->themeProvider = $themeProvider;
@@ -116,37 +109,37 @@ class StoreInfo
      */
     public function getCompanyName()
     {
-        return self::COMPANY_NAME;
+        return $this->deploymentConfig->get('wh/company_name');
     }
 
     public function getLocalization()
     {
-        return self::LOCALIZATION;
+        return $this->deploymentConfig->get('wh/localization');
     }
 
-    public function getKeepFiles()
+    /*public function getKeepFiles()
     {
         return self::KEEP_FILES;
-    }
+    }*/
 
     public function getComposerFile()
     {
-        return self::COMPOSER_FILE;
+        return $this->deploymentConfig->get('wh/composer_files');
     }
 
     public function getModuleVersion()
     {
-        return self::MODULE_VERSION;
+        return $this->deploymentConfig->get('wh/module_version');
     }
 
     public function getDefaultDummyCategoriesQty()
     {
-        return self::DUMMY_CATEGORIES;
+        return $this->deploymentConfig->get('wh/dummy_categories');
     }
 
     public function getDefaultDummyProductsQty()
     {
-        return self::DUMMY_PRODUCTS;
+        return $this->deploymentConfig->get('wh/dummy_products');
     }
 
     
