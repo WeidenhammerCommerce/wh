@@ -1,6 +1,11 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.0.6
+
+- Added create:dump
+- Added shell commands (permissions, 777, static)
+
 ## v.0.0.5
 
 - Added info:m2
@@ -175,6 +180,26 @@ $ bin/magento wh customer:create (alias a:cr)
 * (string) New password
 ```
 $ bin/magento wh customer:password (alias a:p)
+```
+
+
+
+## :eye: SHELL commands
+
+### Set proper permissions for all files and folders
+```
+$ bin/magento wh shell:permissions (alias s:p)
+```
+
+### Set write permissions for required folders (pub/static, var, etc)
+```
+$ bin/magento wh shell:777 (alias s:777)
+```
+
+### Deploy frontend static content for given theme (no fonts)
+* (string) Name of the theme (if multistore)
+```
+$ bin/magento wh shell:static (alias s:s)
 ```
 
 

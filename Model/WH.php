@@ -26,6 +26,8 @@ use Magento\Framework\App\DeploymentConfig;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\Module\ModuleList;
 use Magento\Framework\Module\FullModuleList;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem\Driver\File;
 
 use Magento\Framework\App\ResourceConnection;
 use Magento\Customer\Model\Customer;
@@ -45,6 +47,8 @@ class WH extends Command
     protected $deploymentConfig;
     protected $moduleList;
     protected $fullModuleList;
+    protected $directoryList;
+    protected $file;
 
     protected $resource;
     protected $config;
@@ -62,6 +66,8 @@ class WH extends Command
         DeploymentConfig $deploymentConfig,
         ModuleList $moduleList,
         FullModuleList $fullModuleList,
+        DirectoryList $directoryList,
+        File $file,
         ResourceConnection $resource,
         Config $config,
         Customer $customer,
@@ -77,6 +83,8 @@ class WH extends Command
         $this->deploymentConfig = $deploymentConfig;
         $this->moduleList = $moduleList;
         $this->fullModuleList = $fullModuleList;
+        $this->directoryList = $directoryList;
+        $this->file = $file;
 
         $this->resource = $resource;
         $this->config = $config;
@@ -117,12 +125,17 @@ $ %command.full_name% <info>clean:custom (c:c)</info> Removes selected cache (se
 $ %command.full_name% <info>create:module (cr:m)</info> <question>[name, install file and class file to extend]</question> Creates a new module
 $ %command.full_name% <info>create:theme (cr:t)</info> <question>[name and where to extend from]</question> Creates a new theme
 $ %command.full_name% <info>create:dummy (cr:d)</info> <question>[qty of categories and products]</question> Creates dummy categories and products
+$ %command.full_name% <info>create:dump (cr:dump)</info> Creates dump of the database in the var/dump folder 
 <comment>Customer</comment>
 $ %command.full_name% <info>customer:create (c:cr)</info> <question>[data of customer]</question> Creates a customer
 $ %command.full_name% <info>customer:password (c:p)</info> <question>[email and new password]</question> Updates the password of an existing customer
 <comment>Admin</comment>
 $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, username and password]</question> Creates an admin user
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
+<comment>Shell</comment>
+$ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions for all files and folders
+$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions for required folders (pub/static, var, etc)
+$ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
 <comment>Others</comment>
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
 $ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
@@ -337,7 +350,7 @@ EOF
 
 
             /**
-             * CREATE
+             * CREATION
              **********************************************************************************************************/
 
             /**
@@ -470,6 +483,43 @@ EOF
                 // Create the dummy categories & products
                 $this->dummy->createDummyContent($categoriesQty, $productsQty);
                 $output->writeln('The <info>dummy content</info> was created successfully (<info>'.$categoriesQty.'</info> categories and <info>'.$productsQty.'</info> products on everyone of them).');
+                break;
+
+
+            /**
+             * Create dump of the database
+             */
+            case 'create:dump' :
+            case 'cr:dump' :
+                $output->writeln('Starting the DB backup, please wait');
+
+                $dbInfo = $this->deploymentConfig->get('db')['connection']['default'];
+
+                $today = getdate();
+                $user = $dbInfo['username'];
+                $host = $dbInfo['host'];
+                $pass = $dbInfo['password'];
+                $dbname = $dbInfo['dbname'];
+
+                $filename = $dbname . '-' .
+                    $today['mon'] . '-' .
+                    $today['mday'] . '-' .
+                    $today['hours'] . '-' .
+                    $today['minutes'] .
+                    '.sql';
+
+                $backupsDir = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/backups';
+
+                if (!$this->file->isExists($backupsDir)) {
+                    $this->file->createDirectory($backupsDir);
+                }
+
+                $destination = $backupsDir . '/' . $filename;
+                $commmand = 'mysqldump -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname . ' >>' . $destination;
+
+                shell_exec($commmand);
+
+                $output->writeln('Dump saved in <info>'.$destination.'</info>');
                 break;
 
 
@@ -691,6 +741,57 @@ EOF
                 ");
 
                 $output->writeln('The password for the admin <info>'.$email.'</info> was changed successfully.');
+                break;
+
+
+
+            /**
+             * SHELL
+             **********************************************************************************************************/
+
+            /**
+             * Set write permissions
+             */
+            case 'shell:permissions' :
+            case 's:p' :
+                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait');
+                shell_exec('sudo find . -type f -exec chmod 660 {} ";" && sudo find . -type d -exec chmod 770 {} ";"');
+                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
+                shell_exec('chmod u+x bin/magento');
+                $output->writeln('Proper permissions given to all <info>M2</info> files and folders');
+                break;
+
+            /**
+             * Set only write permissions
+             */
+            case 'shell:777' :
+            case 's:777' :
+                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
+                $output->writeln('Write permissions given to the folders <info>app/etc</info>, <info>pub/media</info>, <info>pub/static</info>, <info>generated</info> and <info>var</info>');
+                break;
+
+            /**
+             * Deploy static content
+             */
+            case 'shell:static' :
+            case 's:s' :
+                $dftCompany = $this->storeInfo->getDefaultThemeCompany();
+                $dftTheme = $this->storeInfo->getDefaultThemeName();
+
+                // If multistore, ask for theme name
+                if($this->storeInfo->isMultistore()) {
+                    $theme = $this->askQuestion(
+                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        $dftTheme,
+                        $input, $output
+                    );
+                } else {
+                    $theme = $dftTheme;
+                }
+
+                $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
+                shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$dftCompany.'/'.$dftTheme);
+                $output->writeln('The static content was deployed correctly.');
                 break;
 
 

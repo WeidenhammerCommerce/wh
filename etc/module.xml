@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="Hammer_WH" setup_version="0.0.5">
+    <module name="Hammer_WH" setup_version="0.0.6">
         <sequence>
             Magento_Store
         </sequence>
