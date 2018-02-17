@@ -186,7 +186,7 @@ $ bin/magento wh customer:password (alias a:p)
 
 ## :eye: SHELL commands
 
-### Set proper permissions for all files and folders
+### Set proper permissions to all files and folders
 ```
 $ bin/magento wh shell:permissions (alias s:p)
 ```

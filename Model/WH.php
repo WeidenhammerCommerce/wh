@@ -133,7 +133,7 @@ $ %command.full_name% <info>customer:password (c:p)</info> <question>[email and 
 $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, username and password]</question> Creates an admin user
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
 <comment>Shell</comment>
-$ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions for all files and folders
+$ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions to all files and folders
 $ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions for required folders (pub/static, var, etc)
 $ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
 <comment>Others</comment>
@@ -790,8 +790,7 @@ EOF
                 }
 
                 $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
-                shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$dftCompany.'/'.$dftTheme);
-                $output->writeln('The static content was deployed correctly.');
+                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$dftCompany.'/'.$dftTheme);
                 break;
 
 
