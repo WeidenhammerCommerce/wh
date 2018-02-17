@@ -21,9 +21,12 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 use Magento\Framework\App\State;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\DeploymentConfig;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\Module\ModuleList;
 use Magento\Framework\Module\FullModuleList;
+
 use Magento\Framework\App\ResourceConnection;
 use Magento\Customer\Model\Customer;
 use Magento\User\Model\UserFactory;
@@ -38,8 +41,11 @@ class WH extends Command
     const COMMAND = 'wh';
 
     protected $appState;
+    protected $productMetadata;
+    protected $deploymentConfig;
     protected $moduleList;
     protected $fullModuleList;
+
     protected $resource;
     protected $config;
     protected $customer;
@@ -52,6 +58,8 @@ class WH extends Command
 
     public function __construct(
         State $appState,
+        ProductMetadataInterface $productMetadata,
+        DeploymentConfig $deploymentConfig,
         ModuleList $moduleList,
         FullModuleList $fullModuleList,
         ResourceConnection $resource,
@@ -65,8 +73,11 @@ class WH extends Command
     )
     {
         $this->appState = $appState;
+        $this->productMetadata = $productMetadata;
+        $this->deploymentConfig = $deploymentConfig;
         $this->moduleList = $moduleList;
         $this->fullModuleList = $fullModuleList;
+
         $this->resource = $resource;
         $this->config = $config;
         $this->customer = $customer;
@@ -92,6 +103,7 @@ class WH extends Command
             ->setDescription('Company specific command')
             ->setHelp(<<<EOF
 <comment>Info</comment>
+$ %command.full_name% <info>info:m2 (i:m2)</info> List data of the Magento 2 instance
 $ %command.full_name% <info>info:store (i:s)</info> List data of the default store
 $ %command.full_name% <info>info:theme (i:t)</info> List data of the default theme
 $ %command.full_name% <info>info:modules (i:m)</info> List all the modules of your company (with its code version)
@@ -144,6 +156,25 @@ EOF
             /**
              * INFO
              **********************************************************************************************************/
+
+            /**
+             * Get information of Magento 2 instance
+             */
+            case 'info:m2' :
+            case 'i:m2' :
+                $output->writeln('
+<title>Magento 2 Information</title>
+<info>Name:</info> '.$this->productMetadata->getName().'
+<info>Edition:</info> '.$this->productMetadata->getEdition().'
+<info>Version:</info> '.$this->productMetadata->getVersion().'
+<info>Mode:</info> '.$this->deploymentConfig->get(State::PARAM_MODE).'
+<info>Session:</info> '.$this->deploymentConfig->get('session/save').'
+<info>Crypt Key:</info> '.$this->deploymentConfig->get('crypt/key').'
+<info>Install Date:</info> '.$this->deploymentConfig->get('install/date'));
+                $output->writeln('');
+                break;
+
+
 
             /**
              * Get information of default Store

@@ -1,6 +1,12 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.0.5
+
+- Added info:m2
+- Added check for custom theme
+- Improved the Cache Block
+
 ## v.0.0.4
 
 - Added create:module
@@ -46,6 +52,12 @@ Note: remember to always develop in *Developer* mode
 
 ```
 $ bin/magento wh --help
+```
+
+### Show information of your Magento instance (Edition, Version, Mode, Session, Crypt Key and Install Date)
+
+```
+$ bin/magento wh info:m2 (alias i:m2)
 ```
 
 ### Show information of your default Store (ID, Title and URL)
