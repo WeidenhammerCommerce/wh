@@ -53,7 +53,7 @@ $ bin/magento wh
 
 - Go to your Magento root folder and run:
 ```
-$ composer update hammer/wh:dev-master
+$ composer update hammer/wh
 ```
 
 Note: remember to always develop in *Developer* mode
