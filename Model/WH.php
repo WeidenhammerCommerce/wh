@@ -998,7 +998,18 @@ Please remember to remove the Magento copyright once you copied it.
                 } else {
                     $output->writeln('<info>¯\_(ツ)_/¯</info>');
                 }
-                $output->writeln('Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
+
+                $output->writeln('');
+                $companyName = $this->storeInfo->getCompanyName();
+                if($companyName == NULL) {
+                    $output->writeln('<error>Your company name is missing in the app/etc/env.php file. Please check the WH documentation.</error>');
+                } else {
+                    $output->writeln(
+                        'The module <info>WH</info> is installed and working correctly.
+Your company name is <info>'.$companyName.'</info>.');
+                    $output->writeln('Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
+                }
+
                 $output->writeln('');
         endswitch;
     }
