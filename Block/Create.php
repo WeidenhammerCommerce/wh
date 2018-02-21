@@ -87,7 +87,7 @@ class Create
 
             // Create /etc/InstallData.php
             $this->createNewFile(
-                $this->whDrafts.$draftSubFolder.'module.txt',
+                $this->whDrafts.$draftSubFolder.'installdata.txt',
                 $newModulePath.'Setup/InstallData.php',
                 $variables
             );
