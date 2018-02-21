@@ -40,6 +40,14 @@ class StoreInfo
         return $themeData['theme_id'];
     }
 
+    public function getDefaultFullThemeName()
+    {
+        $themeData = $this->getThemeData();
+        if(array_key_exists('theme_path', $themeData)) {
+            return $themeData['theme_path'];
+        }
+    }
+
     public function getDefaultThemeCompany()
     {
         $themeData = $this->getThemeData();
@@ -112,6 +120,11 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/company_name');
     }
 
+    public function getDefaultTheme()
+    {
+        return $this->deploymentConfig->get('wh/default_theme');
+    }
+
     public function getLocalization()
     {
         return $this->deploymentConfig->get('wh/localization');
@@ -140,6 +153,11 @@ class StoreInfo
     public function getDefaultDummyProductsQty()
     {
         return $this->deploymentConfig->get('wh/dummy_products');
+    }
+
+    public function getAskIfMultistore()
+    {
+        return $this->deploymentConfig->get('wh/ask_if_multistore');
     }
 
     

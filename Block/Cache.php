@@ -36,9 +36,10 @@ class Cache
         $this->varViewPreprocessed = $this->root.'/var/view_preprocessed/';
         $this->pubStatic = $this->root.'/pub/static/';
 
-        $this->cssPath = 'frontend/'.$this->storeInfo->getDefaultThemeCompany().'/THEMENAME/'.$this->storeInfo->getLocalization().'/css/';
+        $this->cssPath = 'frontend/THEMENAME/'.$this->storeInfo->getLocalization().'/css/';
         $this->themeStyles = $this->pubStatic.$this->cssPath;
         $this->varViewPreprocessedCss = $this->varViewPreprocessed.'css/'.$this->cssPath;
+        $this->varViewPreprocessedPubCss = $this->varViewPreprocessed.'pub/static/'.$this->cssPath;
     }
 
 
@@ -54,22 +55,22 @@ class Cache
 
     /**
      * Remove cache for Templates & Layouts
-     * @param $themeRoot
+     * @param $theme
      */
     public function removeStyleCache($theme)
     {
         $pubCss = str_replace('THEMENAME', $theme, $this->themeStyles);
         $preprocessedCss = str_replace('THEMENAME', $theme, $this->varViewPreprocessedCss);
+        $preprocessedPubCss = str_replace('THEMENAME', $theme, $this->varViewPreprocessedPubCss);
 
-        if(!is_dir($pubCss)){
-            return false;
-        } else {
+        if(is_dir($pubCss)){
             $this->deleteDirectory($pubCss);
-            $this->deleteDirectory($this->varCache);
-            $this->deleteDirectory($this->varPageCache);
-            $this->deleteDirectory($preprocessedCss);
-            return true;
         }
+
+        $this->deleteDirectory($this->varCache);
+        $this->deleteDirectory($this->varPageCache);
+        $this->deleteDirectory($preprocessedCss);
+        $this->deleteDirectory($preprocessedPubCss);
     }
 
 

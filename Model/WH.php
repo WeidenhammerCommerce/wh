@@ -280,10 +280,10 @@ EOF
             case 'clean:styles' :
             case 'c:styles' : case 'clean:s' :
             case 'c:s' :
-                $dftTheme = $this->storeInfo->getDefaultThemeName();
+                $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
-                if($this->storeInfo->isMultistore()) {
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
                         'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,
@@ -779,7 +779,7 @@ EOF
                 $dftTheme = $this->storeInfo->getDefaultThemeName();
 
                 // If multistore, ask for theme name
-                if($this->storeInfo->isMultistore()) {
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
                         'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,
@@ -861,7 +861,7 @@ EOF
                 $dftTheme = $this->storeInfo->getDefaultThemeName();
 
                 // If multistore, ask for theme name
-                if($this->storeInfo->isMultistore()) {
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
                         'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,

@@ -26,18 +26,22 @@
 ```
 $ composer require hammer/wh:dev-master
 ```
-- Enter your Company name (where you place your modules: app/code/[CompanyName])) and other optional parameters in the following array, and add it to the app/etc/env.php file:
+- Enter your Company name and other optional parameters in the following array, and add it to the app/etc/env.php file:
 ```
 'wh' =>
   array (
-      'company_name' => 'CompanyName',
-      'localization' => 'en_US',
-      'composer_files' => 1,
-      'module_version' => '0.0.1',
-      'dummy_categories' => 1,
-      'dummy_products' => 1
-  )
+      'company_name' => 'CompanyName', // required, where you place your modules (app/code/[CompanyName])
+      'default_theme' => 'Woodstream/Corporate', // theme you're currently working on
+      'localization' => 'en_US', // default localization code
+      'composer_files' => 1, // 1 or 0, 1 creates a composer.json on new modules
+      'module_version' => '0.0.1', // default version of new modules 
+      'dummy_categories' => 1, // default qty of dummy categories
+      'dummy_products' => 1, // default qty of dummy products
+      'ask_if_multistore' => 0 // 1 or 0, 1 asks for desired theme/store if multistore
+  )  
 ```
+Note: if multistore, we recommend setting the default_theme along with ask_if_multistore=0 to work faster
+
 - Enable the WH module:
 ```
 $ bin/magento module:enable Hammer_WH
