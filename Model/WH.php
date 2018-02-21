@@ -1010,8 +1010,8 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
                 } else {
                     $output->writeln(
                         'The module <info>WH</info> is installed and working correctly.
-Your company name is <info>'.$companyName.'</info>.
-Your default theme name is <info.>'.$defaultTheme.'</info.>                    
+- Your company name is <info>'.$companyName.'</info>.
+- Your default theme name is <info>'.$defaultTheme.'</info>.                    
 Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
                 }
 
