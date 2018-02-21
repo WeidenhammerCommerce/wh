@@ -198,7 +198,7 @@ $ bin/magento wh customer:password (alias a:p)
 $ bin/magento wh shell:permissions (alias s:p)
 ```
 
-### Set write permissions for required folders (pub/static, var, etc)
+### Set write permissions to required folders (pub/static, var, etc)
 ```
 $ bin/magento wh shell:777 (alias s:777)
 ```

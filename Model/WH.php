@@ -133,7 +133,7 @@ $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, usernam
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
 <comment>Shell</comment>
 $ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions to all files and folders
-$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions for required folders (pub/static, var, etc)
+$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions to required folders (pub/static, var, etc)
 $ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
 <comment>Others</comment>
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
@@ -787,13 +787,12 @@ EOF
              */
             case 'shell:static' :
             case 's:s' :
-                $dftCompany = $this->storeInfo->getDefaultThemeCompany();
-                $dftTheme = $this->storeInfo->getDefaultThemeName();
+                $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
                 if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
-                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        'Name of the theme (Hit <comment>Enter</comment> to use <info>'.$dftTheme.'</info>):',
                         $dftTheme,
                         $input, $output
                     );
@@ -801,8 +800,17 @@ EOF
                     $theme = $dftTheme;
                 }
 
+                // Force it? (new in Magento 2.2.2)
+                $forceOption = $this->askQuestion(
+                    'Force it? (<comment>y/n</comment>; Hit <comment>Enter</comment> to skip):',
+                    'n',
+                    $input, $output
+                );
+
+                $forceOption = strtolower($forceOption) == 'y' ? ' -f' : '';
+
                 $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
-                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$dftCompany.'/'.$dftTheme);
+                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$theme . $forceOption);
                 break;
 
 
