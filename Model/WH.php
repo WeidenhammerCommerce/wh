@@ -283,7 +283,7 @@ EOF
                 $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
-                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
+                if($this->storeInfo->isMultitore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
                         'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,
@@ -1000,14 +1000,19 @@ Please remember to remove the Magento copyright once you copied it.
                 }
 
                 $output->writeln('');
+
                 $companyName = $this->storeInfo->getCompanyName();
-                if($companyName == NULL) {
-                    $output->writeln('<error>Your company name is missing in the app/etc/env.php file. Please check the WH documentation.</error>');
+                $defaultTheme = $this->storeInfo->getDefaultTheme();
+
+                if($companyName == NULL || $defaultTheme == NULL) {
+                    $output->writeln('<error>Your company name and/or default theme is missing in the app/etc/env.php file. 
+Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>');
                 } else {
                     $output->writeln(
                         'The module <info>WH</info> is installed and working correctly.
-Your company name is <info>'.$companyName.'</info>.');
-                    $output->writeln('Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
+Your company name is <info>'.$companyName.'</info>.
+Your default theme name is <info.>'.$defaultTheme.'</info.>                    
+Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
                 }
 
                 $output->writeln('');
