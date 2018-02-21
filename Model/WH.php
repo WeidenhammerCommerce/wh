@@ -283,7 +283,7 @@ EOF
                 $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
-                if($this->storeInfo->isMultitore() && $this->storeInfo->getAskIfMultistore()) {
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
                         'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,
