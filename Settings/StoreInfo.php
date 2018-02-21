@@ -2,10 +2,10 @@
 namespace Hammer\WH\Settings;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\UrlInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\View\DesignInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreRepository;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\View\Design\Theme\ThemeProviderInterface;
 
@@ -13,18 +13,21 @@ class StoreInfo
 {
     protected $deploymentConfig;
     protected $scopeConfig;
+    protected $storeRepository;
     protected $storeManager;
     protected $themeProvider;
 
     public function __construct(
         DeploymentConfig $deploymentConfig,
         ScopeConfigInterface $scopeConfig,
+        StoreRepository $storeRepository,
         StoreManagerInterface $storeManager,
         ThemeProviderInterface $themeProvider
     )
     {
         $this->deploymentConfig = $deploymentConfig;
         $this->scopeConfig = $scopeConfig;
+        $this->storeRepository = $storeRepository;
         $this->storeManager = $storeManager;
         $this->themeProvider = $themeProvider;
     }
@@ -93,7 +96,7 @@ class StoreInfo
 
     public function getDefaultStoreUrl()
     {
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB);
+        return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
     }
 
     /**
@@ -160,7 +163,13 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/ask_if_multistore');
     }
 
-    
+
+
+
+    public function getAllStores()
+    {
+        return $this->storeRepository->getList();
+    }
 
     public function isMultistore()
     {

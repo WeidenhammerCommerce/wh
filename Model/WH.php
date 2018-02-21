@@ -111,9 +111,9 @@ class WH extends Command
             ->setDescription('Company specific command')
             ->setHelp(<<<EOF
 <comment>Info</comment>
-$ %command.full_name% <info>info:m2 (i:m2)</info> List data of the Magento 2 instance
-$ %command.full_name% <info>info:store (i:s)</info> List data of the default store
-$ %command.full_name% <info>info:theme (i:t)</info> List data of the default theme
+$ %command.full_name% <info>info:m2 (i:m2)</info> Shows information of the M2 instance
+$ %command.full_name% <info>info:store (i:s)</info> Shows information of all of the stores
+$ %command.full_name% <info>info:theme (i:t)</info> Shows information of the default theme
 $ %command.full_name% <info>info:modules (i:m)</info> List all the modules of your company (with its code version)
 <comment>Cache</comment>
 $ %command.full_name% <info>clean:templates (c:t)</info> Removes the specific cache to regenerate the templates
@@ -171,7 +171,7 @@ EOF
              **********************************************************************************************************/
 
             /**
-             * Get information of Magento 2 instance
+             * Shows information of Magento 2 instance
              */
             case 'info:m2' :
             case 'i:m2' :
@@ -190,22 +190,36 @@ EOF
 
 
             /**
-             * Get information of default Store
+             * Shows information of all of the Stores
              */
             case 'info:store' :
             case 'i:store' : case 'info:s' :
             case 'i:s' :
+
+                $stores = $this->storeInfo->getAllStores();
+
                 $output->writeln('
-<title>Store Information</title>
-<info>Store ID:</info> '.$this->storeInfo->getDefaultStoreId().'
-<info>Store Title:</info> '.$this->storeInfo->getDefaultStoreName().'
-<info>Store URL:</info> '.$this->storeInfo->getDefaultStoreUrl());
+<title>Store Information</title>');
+
+                if(count($stores) > 1) {
+                    foreach ($stores as $store) {
+                        if ($store->getName() !== 'Admin') { // admin
+                            $output->writeln('
+<info>Store ID:</info> '.$store->getId().'
+<info>Store Title:</info> '.$store->getName().'
+<info>Store Code:</info> '.$store->getCode().'
+<info>Store URL:</info> '.$store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB));
+                        }
+                    }
+                } else {
+                    $output->writeln('The are no stores created yet.');
+                }
                 $output->writeln('');
                 break;
 
 
             /**
-             * Get information of default Theme
+             * Shows information of default Theme
              */
             case 'info:theme' :
             case 'i:theme' : case 'info:t' :
