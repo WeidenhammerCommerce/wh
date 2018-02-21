@@ -48,6 +48,8 @@ class Cache
      */
     public function removeBasicCache()
     {
+        shell_exec('sudo chmod -R 777 pub/static var');
+
         $this->deleteDirectory($this->varCache);
         $this->deleteDirectory($this->varPageCache);
     }
@@ -59,6 +61,8 @@ class Cache
      */
     public function removeStyleCache($theme)
     {
+        shell_exec('sudo chmod -R 777 pub/static var');
+
         $pubCss = str_replace('THEMENAME', $theme, $this->themeStyles);
         $preprocessedCss = str_replace('THEMENAME', $theme, $this->varViewPreprocessedCss);
         $preprocessedPubCss = str_replace('THEMENAME', $theme, $this->varViewPreprocessedPubCss);
@@ -79,6 +83,8 @@ class Cache
      */
     public function removeAllCache()
     {
+        shell_exec('sudo chmod -R 777 pub/static var');
+
         $this->deleteDirectory($this->pubStatic);
         $this->deleteDirectory($this->varCache);
         $this->deleteDirectory($this->varPageCache);
@@ -93,6 +99,8 @@ class Cache
      */
     public function removeCustomCache($selectedCache)
     {
+        shell_exec('sudo chmod -R 777 pub/static var');
+
         $varRoot = $this->root . '/var/';
         foreach ($selectedCache as $c) {
             $this->deleteDirectory($varRoot . $c . '/');
@@ -110,6 +118,8 @@ class Cache
      */
     protected function deleteDirectory($path)
     {
+        shell_exec('sudo chmod -R 777 pub/static var');
+
         $files = glob($path . '/*');
         foreach ($files as $file) :
             if(is_dir($file)) :
