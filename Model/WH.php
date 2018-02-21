@@ -113,7 +113,6 @@ class WH extends Command
 <comment>Info</comment>
 $ %command.full_name% <info>info:m2 (i:m2)</info> Shows information of the M2 instance
 $ %command.full_name% <info>info:store (i:s)</info> Shows information of all of the stores
-$ %command.full_name% <info>info:theme (i:t)</info> Shows information of the default theme
 $ %command.full_name% <info>info:modules (i:m)</info> List all the modules of your company (with its code version)
 <comment>Cache</comment>
 $ %command.full_name% <info>clean:templates (c:t)</info> Removes the specific cache to regenerate the templates
@@ -207,8 +206,7 @@ EOF
                             $output->writeln('
 <info>Store ID:</info> '.$store->getId().'
 <info>Store Title:</info> '.$store->getName().'
-<info>Store Code:</info> '.$store->getCode().'
-<info>Store URL:</info> '.$store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB));
+<info>Store Code:</info> '.$store->getCode());
                         }
                     }
                 } else {
@@ -221,7 +219,7 @@ EOF
             /**
              * Shows information of default Theme
              */
-            case 'info:theme' :
+            /*case 'info:theme' :
             case 'i:theme' : case 'info:t' :
             case 'i:t' :
                 $output->writeln('
@@ -231,7 +229,7 @@ EOF
 <info>Theme Title:</info> '.$this->storeInfo->getDefaultThemeName().'
 <info>Theme Path:</info> '.$this->storeInfo->getDefaultThemePath());
                 $output->writeln('');
-                break;
+                break;*/
 
 
             /**

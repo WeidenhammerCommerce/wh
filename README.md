@@ -78,16 +78,10 @@ $ bin/magento wh --help
 $ bin/magento wh info:m2 (alias i:m2)
 ```
 
-### Show information of your default Store (ID, Title and URL)
+### Show information of all of your Stores (ID, Title and Code)
 
 ```
 $ bin/magento wh info:store (alias i:s)
-```
-
-### Show information of your default Theme (ID, Company, Title and Path)
-
-```
-$ bin/magento wh info:theme (alias i:t)
 ```
 
 ### List all the modules of your company (with its code version)
