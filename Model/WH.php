@@ -5,8 +5,10 @@
  *
  * @todo
  * - Add try catch
+ * - Add command to set env.php variables
+ * - o:t -> copy template automatically
  *
- * Resources:
+ * Command resources:
  * https://symfony.com/doc/2.7/components/console/helpers/dialoghelper.html
  *
  * @copyright Copyright (c) 2018 - Sebastian De Cicco
@@ -133,7 +135,7 @@ $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, usernam
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
 <comment>Shell</comment>
 $ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions to all files and folders
-$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions to required folders (pub/static, var, etc)
+$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions for required folders (pub/static, var, etc)
 $ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
 <comment>Others</comment>
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
@@ -214,7 +216,6 @@ EOF
                 }
                 $output->writeln('');
                 break;
-
 
             /**
              * Shows information of default Theme
@@ -878,7 +879,7 @@ EOF
             case 'override:template' :
             case 'o:template' : case 'override:t' :
             case 'o:t' :
-                $dftTheme = $this->storeInfo->getDefaultThemeName();
+                $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
                 if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {

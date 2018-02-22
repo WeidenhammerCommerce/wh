@@ -247,7 +247,7 @@ class Create
         $template = str_replace('base/', '', $template); // ie: /templates/cart.phtml
 
         // Get full path
-        $fullPath = 'app/design/frontend/'.$this->storeInfo->getDefaultThemeCompany().'/'.$theme.'/';
+        $fullPath = 'app/design/frontend/'.$theme.'/';
         $fullPath .= $module;
         $fullPath .= $template;
 
