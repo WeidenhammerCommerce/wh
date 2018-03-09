@@ -1,6 +1,10 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.0.7
+
+- Add mc: a list of common Magento Cloud commands
+
 ## v.0.0.6
 
 - Started using the env.php file to stored user variables
@@ -37,7 +41,8 @@ $ composer require hammer/wh:dev-master
       'module_version' => '0.0.1', // default version of new modules 
       'dummy_categories' => 1, // default qty of dummy categories
       'dummy_products' => 1, // default qty of dummy products
-      'ask_if_multistore' => 0 // 1 or 0, 1 asks for desired theme/store if multistore
+      'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
+      'magento_cloud_project_id' => '' // ID of the project in Magento Cloud, if any
   )  
 ```
 Note: if multistore, we recommend setting the default_theme along with ask_if_multistore=0 to work faster
@@ -151,6 +156,11 @@ $ bin/magento wh create:theme (alias cr:t)
 $ bin/magento wh create:dummy (alias cr:d)
 ```
 
+### Creates dump of the database in the var/dump folder
+```
+$ bin/magento wh create:dump (alias cr:dump)
+```
+
 
 ## :eye: CUSTOMER commands
 
@@ -212,6 +222,12 @@ $ bin/magento wh shell:static (alias s:s)
 
 
 ## :eye: OTHER commands
+
+### List of Magento Cloud commands
+* (string) Name of the environment
+```
+$ bin/magento wh mc
+```
 
 ### Downgrades the version of the database module to the one on the code
 * (string) Name of the existing module

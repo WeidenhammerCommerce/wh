@@ -163,6 +163,11 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/ask_if_multistore');
     }
 
+    public function getMagentoCloudProjectId()
+    {
+        return $this->deploymentConfig->get('wh/magento_cloud_project_id');
+    }
+
 
 
 

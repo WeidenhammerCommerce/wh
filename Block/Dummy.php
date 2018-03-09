@@ -100,7 +100,7 @@ class Dummy
                 $product->setVisibility(4); // Catalog, Search
                 $product->setPrice(100);
                 $product->setAttributeSetId(4); // Default attribute set for products
-                $product->setStatus(Status::STATUS_ENABLED);
+                $product->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
                 /*$product->addImageToMediaGallery('resources/images/dummy_product.jpg',
                     array('image', 'small_image', 'thumbnail'), false, false);*/
                 $product->setStockData([
