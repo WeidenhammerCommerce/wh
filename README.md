@@ -3,7 +3,7 @@
 
 ## v.0.0.7
 
-- Add mc: a list of common Magento Cloud commands
+- Added mc (list of common Magento Cloud commands)
 
 ## v.0.0.6
 
