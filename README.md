@@ -1,15 +1,11 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
-## v.0.0.7
-
-- Added mc (list of common Magento Cloud commands)
-
 ## v.0.0.6
 
 - Started using the env.php file to stored user variables
 - Added create:dump
-- Added shell commands (permissions, 777, static)
+- Added shell commands (permissions, static)
 
 ## v.0.0.5
 
@@ -41,8 +37,7 @@ $ composer require hammer/wh:dev-master
       'module_version' => '0.0.1', // default version of new modules 
       'dummy_categories' => 1, // default qty of dummy categories
       'dummy_products' => 1, // default qty of dummy products
-      'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
-      'magento_cloud_project_id' => '' // ID of the project in Magento Cloud, if any
+      'ask_if_multistore' => 0 // 1 or 0, 1 asks for desired theme/store if multistore
   )  
 ```
 Note: if multistore, we recommend setting the default_theme along with ask_if_multistore=0 to work faster
@@ -130,6 +125,12 @@ $ bin/magento wh cache:all (alias c:a)
 $ bin/magento wh cache:custom (alias c:c)
 ```
 
+### Removes the specific cache to regenerate the admin
+
+```
+$ bin/magento wh cache:admin (alias c:ad)
+```
+
 
 
 ## :eye: CREATION commands
@@ -208,11 +209,6 @@ $ bin/magento wh customer:password (alias a:p)
 $ bin/magento wh shell:permissions (alias s:p)
 ```
 
-### Set write permissions to required folders (pub/static, var, etc)
-```
-$ bin/magento wh shell:777 (alias s:777)
-```
-
 ### Deploy frontend static content for given theme (no fonts)
 * (string) Name of the theme (if multistore)
 ```
@@ -222,12 +218,6 @@ $ bin/magento wh shell:static (alias s:s)
 
 
 ## :eye: OTHER commands
-
-### List of Magento Cloud commands
-* (string) Name of the environment
-```
-$ bin/magento wh mc
-```
 
 ### Downgrades the version of the database module to the one on the code
 * (string) Name of the existing module

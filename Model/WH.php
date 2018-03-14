@@ -122,6 +122,7 @@ $ %command.full_name% <info>clean:layouts (c:l)</info> Removes the specific cach
 $ %command.full_name% <info>clean:styles (c:s)</info> <question>[name of theme]</question> Removes the specific cache to regenerate the CSS styles
 $ %command.full_name% <info>clean:all (c:a)</info> Removes all cache (everything within /var and /pub/static)
 $ %command.full_name% <info>clean:custom (c:c)</info> Removes selected cache (separated by comma)
+$ %command.full_name% <info>clean:admin (c:ad)</info> Removes the specific cache to regenerate the admin
 <comment>Creation</comment>
 $ %command.full_name% <info>create:module (cr:m)</info> <question>[name, install file and class file to extend]</question> Creates a new module
 $ %command.full_name% <info>create:theme (cr:t)</info> <question>[name and where to extend from]</question> Creates a new theme
@@ -135,10 +136,9 @@ $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, usernam
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
 <comment>Shell</comment>
 $ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions to all files and folders
-$ %command.full_name% <info>shell:777 (s:777)</info> Set write permissions for required folders (pub/static, var, etc)
 $ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
 <comment>Others</comment>
-$ %command.full_name% <info>mc</info> List of Magento Cloud commands
+$ %command.full_name% <info>cloud (mc)</info> List of Magento Cloud commands
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
 $ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
 $ %command.full_name% <info>hints:on (h:on)</info> <question>[name of store]</question> Enables the Template Hints
@@ -360,6 +360,19 @@ EOF
                 $this->cache->removeCustomCache($selectedCache);
                 $output->writeln('<info>Selected cache cleared successfully.</info> ('.implode(', ', $selectedCache).')');
                 break;
+
+
+            /**
+             * Clean cache for Admin
+             */
+            case 'clean:admin' :
+            case 'c:admin' : case 'clean:ad' :
+            case 'c:ad' :
+                // Clear the admin styles
+                if($this->cache->removeAdminCache());
+                $output->writeln('Cache cleared for the <info>admin</info>');
+                break;
+
 
 
 
@@ -778,15 +791,6 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 break;
 
             /**
-             * Set only write permissions
-             */
-            case 'shell:777' :
-            case 's:777' :
-                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
-                $output->writeln('Write permissions given to the folders <info>app/etc</info>, <info>pub/media</info>, <info>pub/static</info>, <info>generated</info> and <info>var</info>');
-                break;
-
-            /**
              * Deploy static content
              */
             case 'shell:static' :
@@ -826,19 +830,20 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
             /**
              * List of Magento Cloud commands
              */
-            case 'mc' :
+            case 'cloud' : case 'mc' :
                 $dialog = $this->getHelper('dialog');
                 $mcOptions = array(
                     'See project info',
                     'See your account info',
                     'See all users',
-                    'See all environments',
-                    'See environment info',
-                    'See environment URLs',
-                    'See environment logs',
-                    'See environment activity (last 10)',
-                    'Download dump of environment database',
-                    'Connect to environment through SSH'
+                    'See all envs',
+                    'See env info',
+                    'See env URLs',
+                    'See env logs',
+                    'See env activity (last 10)',
+                    'Activate env',
+                    'Download dump of env database',
+                    'Connect to env through SSH (beta)'
                 );
 
                 $selected = $dialog->select(
@@ -852,17 +857,17 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 );
 
                 $projectId = $this->storeInfo->getMagentoCloudProjectId();
-                $requiredEnv = array(4,5,6,7,8,9);
+                $requiredEnv = array(4,5,6,7,8,9,10);
 
                 if(in_array($selected, $requiredEnv)) {
                     // Ask for a environment name
                     $envName = $this->askQuestion(
-                        'Name of the environment:',
+                        'Name of the env:',
                         NULL,
                         $input, $output
                     );
                     if(!$envName) {
-                        $output->writeln('<error>You must enter a name for the environment</error>');
+                        $output->writeln('<error>You must enter a name for the env</error>');
                         break;
                     }
                 }
@@ -881,30 +886,34 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                         $command = 'user:list -p '.$projectId;
                         break;
                     case 3 :
-                        // See all environments
+                        // See all envs
                         $command = 'environments -p '.$projectId;
                         break;
                     case 4 :
-                        // See environment info
+                        // See env info
                         $command = 'environment:info -p '.$projectId.' -e '.$envName;
                         break;
                     case 5 :
-                        // See environments URLs
+                        // See envs URLs
                         $command = 'environment:url -p '.$projectId.' -e '.$envName;
                         break;
                     case 6 :
-                        // See environments logs
+                        // See envs logs
                         $command = 'environment:logs -p '.$projectId.' -e '.$envName;
                         break;
                     case 7 :
-                        // See environments activity
+                        // See envs activity
                         $command = 'activity:list -p '.$projectId.' -e '.$envName;
                         break;
                     case 8 :
+                        // Activate env
+                        $command = 'activate:environment -p '.$projectId.' -e '.$envName;
+                        break;
+                    case 9 :
                         // Download env dump
                         $command = 'db:dump -p '.$projectId.' -e '.$envName;
                         break;
-                    case 9 :
+                    case 10 :
                         // Connect through SSH
                         $command = 'ssh -p '.$projectId.' -e '.$envName;
                         break;

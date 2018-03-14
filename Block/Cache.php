@@ -96,6 +96,18 @@ class Cache
     }
 
 
+    /**
+     * Remove cache for Admin
+     */
+    public function removeAdminCache()
+    {
+        $this->deleteDirectory($this->pubStatic.'adminhtml');
+        $this->deleteDirectory($this->varCache);
+        $this->deleteDirectory($this->varPageCache);
+        $this->deleteDirectory($this->varViewPreprocessed);
+    }
+
+
 
 
 
