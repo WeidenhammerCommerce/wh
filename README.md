@@ -1,6 +1,10 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.0.7
+
+- Added cloud command
+
 ## v.0.0.6
 
 - Started using the env.php file to stored user variables
