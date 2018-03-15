@@ -224,6 +224,23 @@ $ bin/magento wh shell:static (alias s:s)
 
 ## :eye: OTHER commands
 
+### List of Magento Cloud commands
+```
+$ bin/magento wh cloud (alias mc)
+Select a Magento Cloud command for the project:
+  [0 ] See project info
+  [1 ] See your account info
+  [2 ] See all users
+  [3 ] See all envs
+  [4 ] See env info
+  [5 ] See env URLs
+  [6 ] See env logs
+  [7 ] See env activity (last 10)
+  [8 ] Activate env
+  [9 ] Download dump of env database
+  [10] Get command to connect to env through SSH
+```
+
 ### Downgrades the version of the database module to the one on the code
 * (string) Name of the existing module
 ```

@@ -843,7 +843,7 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                     'See env activity (last 10)',
                     'Activate env',
                     'Download dump of env database',
-                    'Connect to env through SSH (beta)'
+                    'Get command to connect to env through SSH'
                 );
 
                 $selected = $dialog->select(
@@ -919,7 +919,7 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                         break;
                 endswitch;
 
-                if($selected == 9) {
+                if($selected == 10) { // ssh
                     $output->writeln('');
                     $output->writeln('Run: <info>magento-cloud '.$command.'</info>');
                     $output->writeln('');
@@ -927,7 +927,6 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                     echo shell_exec('magento-cloud '.$command);
                 }
                 break;
-
 
 
             /**
