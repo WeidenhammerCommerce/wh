@@ -37,7 +37,8 @@ $ composer require hammer/wh:dev-master
       'module_version' => '0.0.1', // default version of new modules 
       'dummy_categories' => 1, // default qty of dummy categories
       'dummy_products' => 1, // default qty of dummy products
-      'ask_if_multistore' => 0 // 1 or 0, 1 asks for desired theme/store if multistore
+      'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
+      'magento_cloud_project_id' => '' // magento cloud project ID,  if any
   )  
 ```
 Note: if multistore, we recommend setting the default_theme along with ask_if_multistore=0 to work faster
