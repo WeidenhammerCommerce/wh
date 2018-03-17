@@ -141,6 +141,7 @@ $ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]<
 $ %command.full_name% <info>cloud (mc)</info> List of Magento Cloud commands
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
 $ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
+$ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (developer, production) 
 $ %command.full_name% <info>hints:on (h:on)</info> <question>[name of store]</question> Enables the Template Hints
 $ %command.full_name% <info>hints:off (h:off)</info> <question>[name of store]</question> Disables the Template Hints
 
@@ -831,102 +832,127 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
              * List of Magento Cloud commands
              */
             case 'cloud' : case 'mc' :
-                $dialog = $this->getHelper('dialog');
-                $mcOptions = array(
-                    'See project info',
-                    'See your account info',
-                    'See all users',
-                    'See all envs',
-                    'See env info',
-                    'See env URLs',
-                    'See env logs',
-                    'See env activity (last 10)',
-                    'Activate env',
-                    'Download dump of env database',
-                    'Get command to connect to env through SSH'
+            $dialog = $this->getHelper('dialog');
+            $mcOptions = array(
+                'See project info', // 0
+                'See your account info', // 1
+                'See all users', // 2
+                'See all envs', // 3
+                'See env info', // 4
+                'See env URLs', // 5
+                'See env logs', // 6
+                'See env activity (last 10)', // 7
+                'Create branch', // 8
+                'Activate env', // 9
+                'Download dump of env database', // 10
+                'Get command to connect to env through SSH' // 11
+            );
+            $selected = $dialog->select(
+                $output,
+                'Select a Magento Cloud command for the current project:',
+                $mcOptions,
+                0,
+                false,
+                'Value "%s" is invalid',
+                false // enable multiselect
+            );
+
+            $projectId = $this->storeInfo->getMagentoCloudProjectId();
+
+            $requiredEnv = array(4,5,6,7,9,10,11);
+            if(in_array($selected, $requiredEnv)) {
+                // Ask for a environment name
+                $envName = $this->askQuestion(
+                    'Name of the env:',
+                    NULL,
+                    $input, $output
                 );
-
-                $selected = $dialog->select(
-                    $output,
-                    'Select a Magento Cloud command for the project:',
-                    $mcOptions,
-                    0,
-                    false,
-                    'Value "%s" is invalid',
-                    false // enable multiselect
-                );
-
-                $projectId = $this->storeInfo->getMagentoCloudProjectId();
-                $requiredEnv = array(4,5,6,7,8,9,10);
-
-                if(in_array($selected, $requiredEnv)) {
-                    // Ask for a environment name
-                    $envName = $this->askQuestion(
-                        'Name of the env:',
-                        NULL,
-                        $input, $output
-                    );
-                    if(!$envName) {
-                        $output->writeln('<error>You must enter a name for the env</error>');
-                        break;
-                    }
+                if(!$envName) {
+                    $output->writeln('<error>You must enter a name for the env</error>');
+                    break;
                 }
+            }
 
-                switch($selected) :
-                    case 0 :
-                        // See project info
-                        $command = 'project:info -p '.$projectId;
-                        break;
-                    case 1 :
-                        // See your account info
-                        $command = 'auth:info';
-                        break;
-                    case 2 :
-                        // See all users
-                        $command = 'user:list -p '.$projectId;
-                        break;
-                    case 3 :
-                        // See all envs
-                        $command = 'environments -p '.$projectId;
-                        break;
-                    case 4 :
-                        // See env info
-                        $command = 'environment:info -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 5 :
-                        // See envs URLs
-                        $command = 'environment:url -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 6 :
-                        // See envs logs
-                        $command = 'environment:logs -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 7 :
-                        // See envs activity
-                        $command = 'activity:list -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 8 :
-                        // Activate env
-                        $command = 'activate:environment -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 9 :
-                        // Download env dump
-                        $command = 'db:dump -p '.$projectId.' -e '.$envName;
-                        break;
-                    case 10 :
-                        // Connect through SSH
-                        $command = 'ssh -p '.$projectId.' -e '.$envName;
-                        break;
-                endswitch;
+            $requireBranch = array(8);
+            if(in_array($selected, $requireBranch)) {
+                // Ask name of new branch
+                $branchName = $this->askQuestion(
+                    'Name of new branch:',
+                    NULL,
+                    $input, $output
+                );
+                if(!$branchName) {
+                    $output->writeln('<error>You must enter a name for the new branch</error>');
+                    break;
+                }
+            }
+            if(in_array($selected, $requireBranch)) {
+                // Ask name of master branch
+                $masterBranch = $this->askQuestion(
+                    'Name of the master branch:',
+                    NULL,
+                    $input, $output
+                );
+                if(!$masterBranch) {
+                    $output->writeln('<error>You must enter a name for the parent branch</error>');
+                    break;
+                }
+            }
 
-                if($selected == 10) { // ssh
+            switch($selected) :
+                case 0 :
+                    // See project info
+                    echo shell_exec('magento-cloud project:info -p '.$projectId);
+                    break;
+                case 1 :
+                    // See your account info
+                    echo shell_exec('magento-cloud auth:info');
+                    break;
+                case 2 :
+                    // See all users
+                    echo shell_exec('magento-cloud user:list -p '.$projectId);
+                    break;
+                case 3 :
+                    // See all envs
+                    echo shell_exec('magento-cloud environments -p '.$projectId);
+                    break;
+                case 4 :
+                    // See env info
+                    echo shell_exec('magento-cloud environment:info -p '.$projectId.' -e '.$envName);
+                    break;
+                case 5 :
+                    // See envs URLs
+                    echo shell_exec('magento-cloud environment:url -p '.$projectId.' -e '.$envName);
+                    break;
+                case 6 :
+                    // See envs logs
+                    echo shell_exec('magento-cloud environment:logs -p '.$projectId.' -e '.$envName);
+                    break;
+                case 7 :
+                    // See envs activity
+                    echo shell_exec('magento-cloud activity:list -p '.$projectId.' -e '.$envName);
+                    break;
+                case 8 :
+                    // Create branch
+                    echo shell_exec('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
+                    break;
+                case 9 :
+                    // Activate env
+                    echo shell_exec('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
+                    break;
+                case 10 :
+                    // Download env dump
+                    echo shell_exec('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
+                    break;
+                case 11 :
+                    // Connect through SSH
+                    $command = 'ssh -p '.$projectId.' -e '.$envName;
                     $output->writeln('');
                     $output->writeln('Run: <info>magento-cloud '.$command.'</info>');
                     $output->writeln('');
-                } else {
-                    echo shell_exec('magento-cloud '.$command);
-                }
-                break;
+                    break;
+            endswitch;
+            break;
 
 
             /**
@@ -1019,6 +1045,44 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
 Override the template by copying it to <info>'.$fullPath.'</info>
 Please remember to remove the Magento copyright once you copied it.
 ');
+                break;
+
+
+            /**
+             * Deploy to given mode
+             */
+            case 'deploy:mode' :
+            case 'd:mode' : case 'deploy:m' :
+            case 'd:m' :
+                $dialog = $this->getHelper('dialog');
+                $dMode = array(
+                    'Show current mode',
+                    'Set to Developer',
+                    'Set to Production'
+                );
+                $selected = $dialog->select(
+                    $output,
+                    'Select an option:',
+                    $dMode,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // multiselect
+                );
+                switch($selected) :
+                    case 0 :
+                        // Show current mode
+                        echo shell_exec('bin/magento deploy:mode:show');
+                        break;
+                    case 1 :
+                        // Set to Developer
+                        echo shell_exec('bin/magento deploy:mode:set developer');
+                        break;
+                    case 2 :
+                        // Set to Production
+                        echo shell_exec('bin/magento deploy:mode:set production');
+                        break;
+                endswitch;
                 break;
 
 

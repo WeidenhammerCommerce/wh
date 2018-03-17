@@ -236,9 +236,10 @@ Select a Magento Cloud command for the project:
   [5 ] See env URLs
   [6 ] See env logs
   [7 ] See env activity (last 10)
-  [8 ] Activate env
-  [9 ] Download dump of env database
-  [10] Get command to connect to env through SSH
+  [8 ] Create branch
+  [9 ] Activate env
+  [10] Download dump of env database
+  [11] Get command to connect to env through SSH
 ```
 
 ### Downgrades the version of the database module to the one on the code
@@ -252,6 +253,12 @@ $ bin/magento wh module:downgrade (alias m:d)
 * (string) Path to the existing template (example: vendor/magento/module-checkout/view/frontend/templates/cart.phtml)
 ```
 $ bin/magento wh override:template (alias o:t)
+```
+
+### Deploy to given mode
+* (string) Name of the mode (developer or production)
+```
+$ bin/magento wh deploy:mode (alias d:m)
 ```
 
 ### Enables the Template Hints
