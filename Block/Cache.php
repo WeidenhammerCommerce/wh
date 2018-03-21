@@ -17,6 +17,9 @@ class Cache
     protected $varViewPreprocessed;
     protected $pubStatic;
 
+    protected $generated;
+    protected $generatedCompany;
+
     protected $cssPath;
     protected $themeStyles;
 
@@ -34,6 +37,8 @@ class Cache
         $this->varGeneration = $this->root.'/var/generation/';
         $this->varViewPreprocessed = $this->root.'/var/view_preprocessed/';
         $this->pubStatic = $this->root.'/pub/static/';
+        $this->generated = $this->root.'/generated/';
+        $this->generatedCompany = $this->root.'/generated/code/'.$this->storeInfo->getCompanyName().'/';
 
         $this->cssPath = 'frontend/THEMENAME/'.$this->storeInfo->getLocalization().'/css/';
         $this->themeStyles = $this->pubStatic.$this->cssPath;
@@ -67,6 +72,10 @@ class Cache
         $this->deleteDirectory($this->varCache);
         $this->deleteDirectory($this->varPageCache);
         $this->deleteDirectory($this->varViewPreprocessed);
+
+        if($this->storeInfo->getMagentoCloud()) {
+            $this->deleteDirectory($this->generatedCompany);
+        }
     }
 
 
@@ -80,6 +89,10 @@ class Cache
         $this->deleteDirectory($this->varPageCache);
         $this->deleteDirectory($this->varViewPreprocessed);
         $this->deleteDirectory($this->varGeneration);
+
+        if($this->storeInfo->getMagentoCloud()) {
+            $this->deleteDirectory($this->generated);
+        }
     }
 
 

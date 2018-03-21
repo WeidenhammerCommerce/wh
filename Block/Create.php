@@ -15,6 +15,7 @@ class Create
     protected $directoryList;
     protected $root;
     protected $app;
+    protected $extensions;
 
     protected $filesystem;
     protected $io;
@@ -34,7 +35,7 @@ class Create
         $this->directoryList = $directoryList;
         $this->storeInfo = $storeInfo;
         $this->root = $this->directoryList->getRoot();
-        $this->app = $this->directoryList->getPath('app');
+        $this->extensions = $this->root.'/extensions';
 
         $this->filesystem = $filesystem;
         $this->io = $io;
@@ -60,7 +61,9 @@ class Create
         );
 
         // Create main module folder
-        $newModulePath = $this->app.'/code/'.$this->storeInfo->getCompanyName().'/'.$name.'/';
+        $newModulePath = !$this->storeInfo->getMagentoCloud() ?
+            $this->app.'/code/'.$this->storeInfo->getCompanyName().'/'.$name.'/' :
+            $this->extensions.'/'.$this->storeInfo->getCompanyName().'/'.$name.'/';
         $this->io->checkAndCreateFolder($newModulePath, 0775);
 
         // Create /registration.php
@@ -157,7 +160,7 @@ class Create
         }
 
         // Create /composer.json
-        if($this->storeInfo->getComposerFile()) {
+        if($this->storeInfo->getComposerFile() || $this->storeInfo->getMagentoCloud()) {
             $this->createNewFile(
                 $this->whDrafts.$draftSubFolder.'composer.txt',
                 $newModulePath.'composer.json',
@@ -180,8 +183,10 @@ class Create
             'EXTENDFROM' => $extend
         );
 
-        // Create main module folder
-        $newThemePath = $this->app.'/design/frontend/'.$this->storeInfo->getCompanyName().'/'.$name.'/';
+        // Create main theme folder
+        $newThemePath = !$this->storeInfo->getMagentoCloud() ?
+            $this->app.'/design/frontend/'.$this->storeInfo->getCompanyName().'/'.$name.'/' :
+            $this->extensions.'/'.$this->storeInfo->getCompanyName().'/'.$name.'/';
         $this->io->checkAndCreateFolder($newThemePath, 0775);
 
         // Create /registration.php

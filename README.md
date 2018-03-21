@@ -42,6 +42,7 @@ $ composer require hammer/wh:dev-master
       'dummy_categories' => 1, // default qty of dummy categories
       'dummy_products' => 1, // default qty of dummy products
       'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
+      'magento_cloud' => 0, // 1 or 0, 1 if using Magento Cloud	
       'magento_cloud_project_id' => '' // magento cloud project ID,  if any
   )  
 ```
