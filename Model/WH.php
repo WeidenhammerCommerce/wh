@@ -843,9 +843,10 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 'See env logs', // 6
                 'See env activity (last 10)', // 7
                 'Create branch', // 8
-                'Activate env', // 9
-                'Download dump of env database', // 10
-                'Get command to connect to env through SSH' // 11
+                'Push current branch (to server branch with the same name)', // 9
+                'Activate env', // 10
+                'Download dump of env database', // 11
+                'Get command to connect to env through SSH' // 12
             );
             $selected = $dialog->select(
                 $output,
@@ -859,9 +860,9 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
 
             $projectId = $this->storeInfo->getMagentoCloudProjectId();
 
-            $requiredEnv = array(4,5,6,7,9,10,11);
+            $requiredEnv = array(4,5,6,7,10,11,12);
             if(in_array($selected, $requiredEnv)) {
-                // Ask for a environment name
+                // Ask environment name
                 $envName = $this->askQuestion(
                     'Name of the env:',
                     NULL,
@@ -887,9 +888,9 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 }
             }
             if(in_array($selected, $requireBranch)) {
-                // Ask name of master branch
+                // Ask name of parent branch
                 $masterBranch = $this->askQuestion(
-                    'Name of the master branch:',
+                    'Name of the parent branch:',
                     NULL,
                     $input, $output
                 );
@@ -937,14 +938,18 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                     echo shell_exec('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
                     break;
                 case 9 :
+                    // Push current branch
+                    echo shell_exec('magento-cloud environment:push');
+                    break;
+                case 10 :
                     // Activate env
                     echo shell_exec('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
                     break;
-                case 10 :
+                case 11 :
                     // Download env dump
                     echo shell_exec('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
                     break;
-                case 11 :
+                case 12 :
                     // Connect through SSH
                     $command = 'ssh -p '.$projectId.' -e '.$envName;
                     $output->writeln('');
@@ -1096,11 +1101,17 @@ Please remember to remove the Magento copyright once you copied it.
 
                 // Ask for store name
                 $defaultStoreName = $this->storeInfo->getDefaultStoreName();
-                $storeName = $this->askQuestion(
-                    'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
-                    $defaultStoreName,
-                    $input, $output
-                );
+
+                // If multistore, ask for store name
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
+                    $storeName = $this->askQuestion(
+                        'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
+                        $defaultStoreName,
+                        $input, $output
+                    );
+                } else {
+                    $storeName = $defaultStoreName;
+                }
 
                 // Get store id
                 $storeId = $this->storeInfo->getDefaultStoreId();
@@ -1137,11 +1148,17 @@ Please remember to remove the Magento copyright once you copied it.
             case 'h:off' :
                 // Ask for store name
                 $defaultStoreName = $this->storeInfo->getDefaultStoreName();
-                $storeName = $this->askQuestion(
-                    'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
-                    $defaultStoreName,
-                    $input, $output
-                );
+
+                // If multistore, ask for store name
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
+                    $storeName = $this->askQuestion(
+                        'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
+                        $defaultStoreName,
+                        $input, $output
+                    );
+                } else {
+                    $storeName = $defaultStoreName;
+                }
 
                 $connection = $this->resource->getConnection('default');
                 $result = $connection->fetchRow("SELECT store_id FROM store WHERE name LIKE '%$storeName%'");
