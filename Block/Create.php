@@ -35,6 +35,7 @@ class Create
         $this->directoryList = $directoryList;
         $this->storeInfo = $storeInfo;
         $this->root = $this->directoryList->getRoot();
+        $this->app = $this->root.'/app';
         $this->extensions = $this->root.'/extensions';
 
         $this->filesystem = $filesystem;
