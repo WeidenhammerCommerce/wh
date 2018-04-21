@@ -1,12 +1,20 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
-## v.0.0.8
+## v.0.1.0
 
-- Added options to the create:module command:
- ```
- 
- ```
+- Added options to the create:module command
+```
+[1] Extend Block/Model class
+[2] Create Plugin for a method
+[3] Create frontend page to display template
+[4] Create frontend page to display template using view-model
+[5] Create frontend page to return JSON
+[6] Attach Observer to Event
+[7] Replace constructor argument
+[8] Create new Command line
+[9] Create REST API with ACL
+```
 
 ## v.0.0.7
 
