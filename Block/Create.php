@@ -378,7 +378,25 @@ class Create
                 // Set variables
                 $variables['{OLDCLASS}'] = $feature['class'];
                 $variables['{VARIABLE}'] = str_replace('$', '', $feature['variable']);
-                $variables['{NEWCLASS}'] = $feature['newclass'];
+
+                // Get new class
+                $f = explode('\\', $feature['newclass']);
+                $folder = $f[0];
+                $file = $f[1];
+                $variables['{NEWCLASS}'] = $this->storeInfo->getCompanyName().'\\'.$name.'\\'.$folder.'\\'.$file;
+
+                $variables['{FOLDER}'] = $folder;
+                $variables['{FILE}'] = $file;
+
+                // Create /Block|Model
+                $this->io->checkAndCreateFolder($newModulePath.$folder, 0775);
+
+                // Create /Block|Model/NewClass.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'block_constructor_argument.txt',
+                    $newModulePath . $folder . '//' . $file .'.php',
+                    $variables
+                );
 
                 // Create /etc/di.xml
                 $this->createNewFile(

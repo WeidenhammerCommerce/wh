@@ -569,7 +569,7 @@ EOF
                         $feature['class'] = $diClassName;
 
                         $variableName = $this->askQuestion(
-                            'Name of constructor variable to replace (example: <comment>$paymentConfig</comment>):',
+                            'Name of constructor variable to replace with (example: <comment>$paymentConfig</comment>):',
                             NULL,
                             $input, $output
                         );
@@ -580,7 +580,7 @@ EOF
                         $feature['variable'] = $variableName;
 
                         $newClassName = $this->askQuestion(
-                            'Block/Model class to use instead of '.$diClassName.' (example: <comment>'.$this->storeInfo->getCompanyName().'\\'.$moduleName.'\Block\NewForm</comment>):',
+                            'Block/Model class to use instead of '.$diClassName.' (example: <comment>Block\NewForm</comment>):',
                             NULL,
                             $input, $output
                         );
