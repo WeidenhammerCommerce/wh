@@ -107,28 +107,14 @@ class Create
                 // Create /etc/di.xml for Block or Model
                 $variables['{EXTENDFROM}'] = $feature['class'];
 
-                $b = null;
-                $m = null;
-                $block = strpos($feature['class'], 'Block');
-                $model = strpos($feature['class'], 'Model');
+                // Get folder & file
+                $f = explode('\\', $feature['class']);
+                $folder = $f[2];
+                $file = explode('\\'.$folder.'\\', $feature['class']);
 
-                if ($block !== false) {
-                    $b = explode('\Block\\', $feature['class']);
-                } elseif ($model !== false) {
-                    $m = explode('\Model\\', $feature['class']);
-                }
-
-                if ($b) {
-                    $variables['{EXTENDTO}'] = $this->storeInfo->getCompanyName() . '\\' .
-                        $name . '\Block\\' .
-                        end($b);
-                } elseif ($m) {
-                    $variables['{EXTENDTO}'] = $this->storeInfo->getCompanyName() . '\\' .
-                        $name . '\Model\\' .
-                        end($m);
-                } else {
-                    return false;
-                }
+                $variables['{EXTENDTO}'] = $this->storeInfo->getCompanyName() . '\\' .
+                    $name . '\\'.$folder.'\\' .
+                    end($file);
 
                 $this->createNewFile(
                     $this->whDrafts . $draftSubFolder . 'di.txt',
@@ -137,13 +123,8 @@ class Create
                 );
 
                 // Create path to the new class
-                if ($b) {
-                    $folders = explode('\\', $b[1]);
-                    array_unshift($folders, 'Block');
-                } elseif ($m) {
-                    $folders = explode('\\', $m[1]);
-                    array_unshift($folders, 'Model');
-                }
+                $folders = explode('\\', end($file));
+                array_unshift($folders, $folder);
                 array_pop($folders); // remove Wishlist
                 $finalPath = implode('/', $folders);
                 $this->io->checkAndCreateFolder($newModulePath . $finalPath, 0775);
@@ -375,33 +356,45 @@ class Create
 
             // Replace constructor argument
             case '7' :
-                // Set variables
                 $variables['{OLDCLASS}'] = $feature['class'];
                 $variables['{VARIABLE}'] = str_replace('$', '', $feature['variable']);
 
-                // Get new class
-                $f = explode('\\', $feature['newclass']);
-                $folder = $f[0];
-                $file = $f[1];
-                $variables['{NEWCLASS}'] = $this->storeInfo->getCompanyName().'\\'.$name.'\\'.$folder.'\\'.$file;
+                // Get folder & file
+                $f = explode('\\', $feature['class']);
+                $folder = $f[2];
+                $file = explode('\\'.$folder.'\\', $feature['class']);
 
-                $variables['{FOLDER}'] = $folder;
-                $variables['{FILE}'] = $file;
-
-                // Create /Block|Model
-                $this->io->checkAndCreateFolder($newModulePath.$folder, 0775);
-
-                // Create /Block|Model/NewClass.php
-                $this->createNewFile(
-                    $this->whDrafts . $draftSubFolder . 'block_constructor_argument.txt',
-                    $newModulePath . $folder . '//' . $file .'.php',
-                    $variables
-                );
+                $variables['{NEWCLASS}'] = $this->storeInfo->getCompanyName() . '\\' .
+                    $name . '\\'.$folder.'\\' .
+                    end($file);
 
                 // Create /etc/di.xml
                 $this->createNewFile(
                     $this->whDrafts . $draftSubFolder . 'di_constructor_argument.txt',
                     $newModulePath . 'etc/di.xml',
+                    $variables
+                );
+
+                // Create path to the new class
+                $folders = explode('\\', end($file));
+                array_unshift($folders, $folder);
+                array_pop($folders);
+                $finalPath = implode('/', $folders);
+                $this->io->checkAndCreateFolder($newModulePath . $finalPath, 0775);
+
+                // Create class file in the new path
+                $namespace = explode('\\', $variables['{NEWCLASS}']);
+                array_pop($namespace);
+                $variables['{NAMESPACENAME}'] = implode('\\', $namespace);
+
+                $newClass = explode('\\', $variables['{NEWCLASS}']);
+                $className = array_pop($newClass);
+                $variables['{CLASSNAME}'] = $className;
+
+                // Create /Block|Model/NewClass.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'block_constructor_argument.txt',
+                    $newModulePath . $finalPath . '/' . $className . '.php',
                     $variables
                 );
                 break;

@@ -424,12 +424,12 @@ EOF
                         $output->writeln('
 <title>Extend Block/Model class with di.xml</title>');
                         $diClassName = $this->askQuestion(
-                            'Block/Model class to extend (example: <comment>Magento\Wishlist\Block\Customer\Wishlist</comment>):',
+                            'Class to extend from (example: <comment>Magento\Wishlist\Block\Customer\Wishlist</comment>):',
                             NULL,
                             $input, $output
                         );
                         if(!$diClassName) {
-                            $output->writeln('<error>You must enter a class to extend</error>');
+                            $output->writeln('<error>You must enter a class to extend from</error>');
                             break;
                         }
                         $feature['class'] = $diClassName;
@@ -569,26 +569,15 @@ EOF
                         $feature['class'] = $diClassName;
 
                         $variableName = $this->askQuestion(
-                            'Name of constructor variable to replace with (example: <comment>$paymentConfig</comment>):',
+                            'Name of constructor variable to be replaced (example: <comment>$paymentConfig</comment>):',
                             NULL,
                             $input, $output
                         );
                         if(!$variableName) {
-                            $output->writeln('<error>You must enter a variable to replace</error>');
+                            $output->writeln('<error>You must enter the variable to be replaced</error>');
                             break;
                         }
                         $feature['variable'] = $variableName;
-
-                        $newClassName = $this->askQuestion(
-                            'Block/Model class to use instead of '.$diClassName.' (example: <comment>Block\NewForm</comment>):',
-                            NULL,
-                            $input, $output
-                        );
-                        if(!$newClassName) {
-                            $output->writeln('<error>You must enter a new class to use instead of '.$diClassName.'</error>');
-                            break;
-                        }
-                        $feature['newclass'] = $newClassName;
                         break;
 
                     case '8' :
