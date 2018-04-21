@@ -1242,9 +1242,9 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
                     $theme = $dftTheme;
                 }
 
-                // Ask for file to override
+                // Ask for file to be overridden
                 $file = $this->askQuestion(
-                    'Path of the template to be overridden (starting with <info>vendor/...</info>):',
+                    'Path of the template to be overridden (example: <info>vendor/magento/module-checkout/view/frontend/templates/cart.phtml</info>):',
                     NULL,
                     $input, $output
                 );
@@ -1256,9 +1256,14 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
                 // Get path to override template
                 $fullPath = $this->create->overrideTemplate($file, $theme);
 
+                if(!$fullPath) {
+                    $output->writeln('<error>The template already exists within the '.$theme.' theme</error>');
+                    break;
+                }
+
                 $output->writeln('
-Override the template by copying it to <info>'.$fullPath.'</info>
-Please remember to remove the Magento copyright once you copied it.
+Template copied to <info>'.$fullPath.'</info>
+Remember to remove the Magento copyright from the top of the file.
 ');
                 break;
 

@@ -550,7 +550,8 @@ class Create
     {
         // Get file
         $vFile = str_replace('code/vendor', 'vendor', $file);
-        // ie of $vFile: vendor/magento/module-checkout/view/frontend/templates/cart.phtml
+        // ie1: vendor/magento/module-checkout/view/frontend/templates/cart.phtml
+        // ie2: vendor/magento/module-catalog-search/view/frontend/templates/advanced/result.phtml
 
         // Get module name
         $m = explode('/', $vFile);
@@ -559,20 +560,43 @@ class Create
         $module = str_replace('-', ' ', $module);
         $module = ucwords($module);
         $module = str_replace(' ', '', $module); // ie: Checkout
-        $module = 'Magento_'.$module;
+        $module = 'Magento_'.$module; // ie: Magento_Checkout or Magento_CatalogSearch
 
         // Get template path
-        $t = explode('view', $vFile);
-        $template = end($t);
-        $template = str_replace('frontend/', '', $template);
-        $template = str_replace('base/', '', $template); // ie: /templates/cart.phtml
+        $t = explode('/templates/', $vFile);
+        $templateFolder = explode('/', $t[1]);
+        $file = end($templateFolder); // ie: cart.phtml or result.phtml
+        $templateFolder = str_replace($file, '', $t[1]); // ie: '' or advanced/
+
+        $friendlyPath = !$this->storeInfo->getMagentoCloud() ?
+            'app/design/frontend' :
+            'extensions';
 
         // Get full path
-        $fullPath = 'app/design/frontend/'.$theme.'/';
-        $fullPath .= $module;
-        $fullPath .= $template;
+        $newThemePath = !$this->storeInfo->getMagentoCloud() ?
+            $this->app.'/design/frontend' :
+            $this->extensions;
 
-        return $fullPath;
+        // Prepare paths
+        $fullPath = $newThemePath.'/'.$theme.'/'.$module.'/templates/'.$templateFolder;
+        $newTemplatePath = $fullPath . $file;
+
+        if(file_exists($newTemplatePath)) {
+            return;
+        }
+
+        // Create folders
+        $check = $this->io->checkAndCreateFolder($fullPath, 0775);
+
+        // Copy the template file
+        $this->copyFile(
+            $vFile,
+            $newTemplatePath
+        );
+
+        // Return friendly path
+        $fullFriendlyPath = $friendlyPath.'/'.$theme.'/'.$module.'/templates/'.$templateFolder.$file;
+        return $fullFriendlyPath;
     }
 
 
@@ -595,6 +619,17 @@ class Create
         $this->io->write(
             $newFile,
             $draftContent,
+            0666
+        );
+    }
+
+    protected function copyFile($fromFile, $toFile)
+    {
+        $fromContent = file_get_contents($fromFile);
+
+        $this->io->write(
+            $toFile,
+            $fromContent,
             0666
         );
     }
