@@ -1,5 +1,5 @@
 //
-//  THEMENAME Styles
+//  {THEMENAME} Styles
 //  - Extends from the Magento/blank theme
 //  _____________________________________________________
 

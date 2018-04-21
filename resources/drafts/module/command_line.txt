@@ -1,0 +1,26 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Console;
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class {COMMAND_UCWORDS} extends Command
+{
+   protected function configure()
+   {
+       $this->setName('example:{COMMAND}');
+       $this->setDescription('Demo command line created with WH');
+
+       parent::configure();
+   }
+
+   protected function execute(InputInterface $input, OutputInterface $output)
+   {
+       // Your code goes here...
+       $output->writeln('Hello World!');
+
+       // You can run "bin/magento example:{COMMAND}" from the command to see the result
+   }
+}

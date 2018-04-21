@@ -1,0 +1,42 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Controller\Index;
+
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
+
+class Index extends \Magento\Framework\App\Action\Action
+{
+    /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
+     * @param Context $context
+     * @param ResultFactory $resultFactory
+     * @param JsonFactory $resultJsonFactory
+     */
+    public function __construct(
+        Context $context,
+        JsonFactory $resultJsonFactory
+    )
+    {
+        $this->resultJsonFactory = $resultJsonFactory;
+        parent::__construct($context);
+    }
+
+    /**
+     * View page action
+     * You can visit /{FRONTNAME} to test it
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
+    public function execute()
+    {
+        $result = $this->resultJsonFactory->create();
+        $data = ['message' => 'Hello world!'];
+        return $result->setData($data);
+    }
+}

@@ -1,0 +1,37 @@
+<?php
+namespace {COMPANYNAME}\{MODULENAME}\Plugin;
+
+use Psr\Log\LoggerInterface;
+
+/**
+ * Class {PLUGIN_NAME_UCWORDS}Plugin
+ * @package {COMPANYNAME}\{PLUGIN_NAME_UCWORDS}\Plugin
+ */
+class {PLUGIN_NAME_UCWORDS}Plugin
+{
+    protected $logger;
+
+    public function __construct(
+        LoggerInterface $logger
+    )
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * Plugin description...
+     *
+     * @param $subject
+     * @param $result
+     * @return string
+     */
+    public function {PLUGIN_WHEN}{PLUGIN_NAME_UCWORDS}($subject, $result)
+    {
+        try {
+            // Your code goes here...
+        } catch (\Exception $e) {
+            $this->logger->critical($e->getMessage());
+            return $result;
+        }
+    }
+}

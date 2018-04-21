@@ -1,0 +1,3 @@
+<?php
+/* @var \{COMPANYNAME}\{MODULENAME}\Block\Index $block */
+echo $block->getMessage();

@@ -1,5 +1,5 @@
 //
-// THEMENAME variables
+// {THEMENAME} variables
 // _____________________________________________________
 
 /* Grid */
@@ -22,5 +22,5 @@
 @max_319: 319px;
 
 /* Scheme color */
-@THEMENAMELOWER-dark-blue: #053D5D;
-@THEMENAMELOWER-light-blue: #58B5E6;
+@{THEMENAMELOWER}-dark-blue: #053D5D;
+@{THEMENAMELOWER}-light-blue: #58B5E6;

@@ -48,17 +48,17 @@ class Create
 
 
 
-    public function createModule($name, $diClassName, $installOption) // $version, $composer
+    public function createModule($name, $install, $feature)
     {
         $draftSubFolder = 'module/';
 
         // Define module's variables
         $variables = array(
-            'COMPANYNAMELOWER' => strtolower($this->storeInfo->getCompanyName()),
-            'COMPANYNAME' => $this->storeInfo->getCompanyName(),
-            'MODULENAMELOWER' => strtolower($name),
-            'MODULENAME' => $name,
-            'MODULEVERSION' => $this->storeInfo->getModuleVersion()
+            '{COMPANYNAMELOWER}' => strtolower($this->storeInfo->getCompanyName()),
+            '{COMPANYNAME}' => $this->storeInfo->getCompanyName(),
+            '{MODULENAMELOWER}' => strtolower($name),
+            '{MODULENAME}' => $name,
+            '{MODULEVERSION}' => $this->storeInfo->getModuleVersion()
         );
 
         // Create main module folder
@@ -85,7 +85,7 @@ class Create
         );
 
         // Create Setup/InstallData.php
-        if($installOption) {
+        if($install) {
             // Create /Setup
             $this->io->checkAndCreateFolder($newModulePath.'Setup', 0775);
 
@@ -97,68 +97,372 @@ class Create
             );
         }
 
-        // Create /etc/di.xml & extended class
-        if($diClassName) {
+        // Create the selected feature, if any
+        switch($feature['selected']) :
+            // None
+            case '0' :
+                break;
+            // Extend Block/Model class with di.xml
+            case '1' :
+                // Create /etc/di.xml for Block or Model
+                $variables['{EXTENDFROM}'] = $feature['class'];
 
-            // Create /etc/di.xml for Block or Model
-            $variables['EXTENDFROM'] = $diClassName;
+                $b = null;
+                $m = null;
+                $block = strpos($feature['class'], 'Block');
+                $model = strpos($feature['class'], 'Model');
 
-            $b = null;
-            $m = null;
-            $block = strpos($diClassName, 'Block');
-            $model = strpos($diClassName, 'Model');
+                if ($block !== false) {
+                    $b = explode('\Block\\', $feature['class']);
+                } elseif ($model !== false) {
+                    $m = explode('\Model\\', $feature['class']);
+                }
 
-            if ($block !== false) {
-                $b = explode('\Block\\', $diClassName);
-            } elseif ($model !== false) {
-                $m = explode('\Model\\', $diClassName);
-            }
+                if ($b) {
+                    $variables['{EXTENDTO}'] = $this->storeInfo->getCompanyName() . '\\' .
+                        $name . '\Block\\' .
+                        end($b);
+                } elseif ($m) {
+                    $variables['{EXTENDTO}'] = $this->storeInfo->getCompanyName() . '\\' .
+                        $name . '\Model\\' .
+                        end($m);
+                } else {
+                    return false;
+                }
 
-            if($b) {
-                $variables['EXTENDTO'] = $this->storeInfo->getCompanyName().'\\'.
-                    $name .'\Block\\'.
-                    end($b);
-            } elseif($m) {
-                $variables['EXTENDTO'] = $this->storeInfo->getCompanyName().'\\'.
-                    $name .'\Model\\'.
-                    end($m);
-            } else {
-                return false;
-            }
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'di.txt',
+                    $newModulePath . 'etc/di.xml',
+                    $variables
+                );
 
-            $this->createNewFile(
-                $this->whDrafts.$draftSubFolder.'di.txt',
-                $newModulePath.'etc/di.xml',
-                $variables
-            );
+                // Create path to the new class
+                if ($b) {
+                    $folders = explode('\\', $b[1]);
+                    array_unshift($folders, 'Block');
+                } elseif ($m) {
+                    $folders = explode('\\', $m[1]);
+                    array_unshift($folders, 'Model');
+                }
+                array_pop($folders); // remove Wishlist
+                $finalPath = implode('/', $folders);
+                $this->io->checkAndCreateFolder($newModulePath . $finalPath, 0775);
 
-            // Create path to the new class
-            if($b) {
-                $folders = explode('\\', $b[1]);
-                array_unshift($folders, 'Block');
-            } elseif($m) {
-                $folders = explode('\\', $m[1]);
-                array_unshift($folders, 'Model');
-            }
-            array_pop($folders); // remove Wishlist
-            $finalPath = implode('/', $folders);
-            $this->io->checkAndCreateFolder($newModulePath . $finalPath, 0775);
+                // Create the class in the new path
+                $namespace = explode('\\', $variables['{EXTENDTO}']);
+                array_pop($namespace); // remove Wishlist
+                $variables['{NAMESPACENAME}'] = implode('\\', $namespace);
 
-            // Create the class in the new path
-            $namespace = explode('\\', $variables['EXTENDTO']);
-            array_pop($namespace); // remove Wishlist
-            $variables['NAMESPACENAME'] = implode('\\', $namespace);
+                $newClass = explode('\\', $variables['{EXTENDTO}']);
+                $className = array_pop($newClass);
+                $variables['{CLASSNAME}'] = $className;
 
-            $newClass = explode('\\', $variables['EXTENDTO']);
-            $className = array_pop($newClass);
-            $variables['CLASSNAME'] = $className;
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'extend.txt',
+                    $newModulePath . $finalPath . '/' . $className . '.php',
+                    $variables
+                );
+                break;
 
-            $this->createNewFile(
-                $this->whDrafts.$draftSubFolder.'extend.txt',
-                $newModulePath.$finalPath.'/'.$className.'.php',
-                $variables
-            );
-        }
+            // Create Plugin for a method with di.xml
+            case '2' :
+                // Create /etc/di.xml for Block or Model
+                $variables['{EXTENDFROM}'] = $feature['class'];
+
+                // hammer_format_currency_plugin
+                $pluginName = $this->storeInfo->getCompanyName().'_'.$feature['method'].'_plugin';
+                $variables['{PLUGIN_NAME}'] = strtolower($pluginName);
+
+                // Hammer\PriceFormat\Plugin\FormatPricePlugin
+                $ucwordsMethod = ucwords($feature['method']);
+                $pluginType = $this->storeInfo->getCompanyName().'\\'.$name.'\\Plugin\\'.$ucwordsMethod.'Plugin';
+
+                switch($feature['when']) :
+                    case '0' :
+                        $when = 'before';
+                        break;
+                    case '1' :
+                        $when = 'after';
+                        break;
+                    case '2' :
+                        $when = 'around';
+                        break;
+                endswitch;
+
+                $variables['{PLUGIN_NAME_UCWORDS}'] = $ucwordsMethod;
+                $variables['{PLUGIN_TYPE}'] = $pluginType;
+                $variables['{PLUGIN_WHEN}'] = $when;
+
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'di_plugin.txt',
+                    $newModulePath . 'etc/di.xml',
+                    $variables
+                );
+
+                // Create /Plugin
+                $this->io->checkAndCreateFolder($newModulePath.'Plugin', 0775);
+
+                // Create /Plugin/{Method}Plugin.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'plugin.txt',
+                    $newModulePath . '/Plugin/' . $ucwordsMethod . 'Plugin.php',
+                    $variables
+                );
+
+                break;
+
+
+            // Create frontend page with Controller to display template
+            case '3' :
+                // Create /etc/frontend
+                $this->io->checkAndCreateFolder($newModulePath.'etc/frontend', 0775);
+
+                // Create /etc/InstallData.php
+                $variables['{IDNAME}'] = $feature['newpage'];
+                $variables['{FRONTNAME}'] = $feature['newpage'];
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'routes.txt',
+                    $newModulePath.'etc/frontend/routes.xml',
+                    $variables
+                );
+
+                // Create /Controller/Index/Index.php
+                $this->io->checkAndCreateFolder($newModulePath.'Controller/Index', 0775);
+
+                // Create /etc/frontend/routers.xml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'controller_template.txt',
+                    $newModulePath.'Controller/Index/Index.php',
+                    $variables
+                );
+
+                // Create /view/frontend/layout
+                $this->io->checkAndCreateFolder($newModulePath.'view/frontend/layout', 0775);
+
+                // Create /view/frontend/layout/{frontname}_index_index.xml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'controller_layout.txt',
+                    $newModulePath.'view/frontend/layout/'.$feature['newpage'].'_index_index.xml',
+                    $variables
+                );
+
+                // Create /view/frontend/templates
+                $this->io->checkAndCreateFolder($newModulePath.'view/frontend/templates', 0775);
+
+                // Create /view/frontend/templates/{frontname}.phtml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'template.txt',
+                    $newModulePath.'view/frontend/templates/'.$feature['newpage'].'.phtml',
+                    $variables
+                );
+
+                // Create /Block
+                $this->io->checkAndCreateFolder($newModulePath.'Block', 0775);
+
+                // Create /Block/Index.php
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'block.txt',
+                    $newModulePath.'Block/Index.php',
+                    $variables
+                );
+
+                break;
+
+            // Create frontend page with Controller to display template using view-model
+            case '4' :
+                // Create /etc/frontend
+                $this->io->checkAndCreateFolder($newModulePath.'etc/frontend', 0775);
+
+                // Create /etc/frontend/routes.xml
+                $variables['{IDNAME}'] = $feature['newpage'];
+                $variables['{FRONTNAME}'] = $feature['newpage'];
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'routes.txt',
+                    $newModulePath.'etc/frontend/routes.xml',
+                    $variables
+                );
+
+                // Create /Controller/Index/Index.php
+                $this->io->checkAndCreateFolder($newModulePath.'Controller/Index', 0775);
+
+                // Create /etc/frontend/routers.xml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'controller_template.txt',
+                    $newModulePath.'Controller/Index/Index.php',
+                    $variables
+                );
+
+                // Create /view/frontend/layout
+                $this->io->checkAndCreateFolder($newModulePath.'view/frontend/layout', 0775);
+
+                // Create /view/frontend/layout/{frontname}_index_index.xml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'viewmodel_layout.txt',
+                    $newModulePath.'view/frontend/layout/'.$feature['newpage'].'_index_index.xml',
+                    $variables
+                );
+
+                // Create /view/frontend/templates
+                $this->io->checkAndCreateFolder($newModulePath.'view/frontend/templates', 0775);
+
+                // Create /view/frontend/templates/{frontname}.phtml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'viewmodel_template.txt',
+                    $newModulePath.'view/frontend/templates/'.$feature['newpage'].'.phtml',
+                    $variables
+                );
+
+                // Create /Block
+                $this->io->checkAndCreateFolder($newModulePath.'Block', 0775);
+
+                // Create /Block/Index.php
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'viewmodel_block.txt',
+                    $newModulePath.'Block/Index.php',
+                    $variables
+                );
+
+                break;
+
+            // Create frontend page with Controller to return JSON
+            case '5' :
+                // Create /etc/frontend
+                $this->io->checkAndCreateFolder($newModulePath.'etc/frontend', 0775);
+
+                // Create /etc/frontend/routes.xml
+                $variables['{IDNAME}'] = $feature['newpage'];
+                $variables['{FRONTNAME}'] = $feature['newpage'];
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'routes.txt',
+                    $newModulePath.'etc/frontend/routes.xml',
+                    $variables
+                );
+
+                // Create /Controller
+                $this->io->checkAndCreateFolder($newModulePath.'Controller/Index', 0775);
+
+                // Create /etc/frontend/routers.xml
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.'controller_json.txt',
+                    $newModulePath.'Controller/Index/Index.php',
+                    $variables
+                );
+                break;
+
+            // Attach Observer to Event
+            case '6' :
+                $variables['{EVENT}'] = $feature['event'];
+                $variables['{OBSERVERLOWER}'] = strtolower($feature['observer']);
+                $variables['{OBSERVER}'] = $feature['observer'];
+
+                // Create /etc/events.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'events.txt',
+                    $newModulePath . 'etc/events.xml',
+                    $variables
+                );
+
+                // Create /Observer
+                $this->io->checkAndCreateFolder($newModulePath.'Observer', 0775);
+
+                // Create /Observer/{Observer}.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'observer.txt',
+                    $newModulePath . 'Observer/'.$feature['observer'].'.php',
+                    $variables
+                );
+                break;
+
+            // Replace constructor argument
+            case '7' :
+                // Set variables
+                $variables['{OLDCLASS}'] = $feature['class'];
+                $variables['{VARIABLE}'] = str_replace('$', '', $feature['variable']);
+                $variables['{NEWCLASS}'] = $feature['newclass'];
+
+                // Create /etc/di.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'di_constructor_argument.txt',
+                    $newModulePath . 'etc/di.xml',
+                    $variables
+                );
+                break;
+
+            // Create new Command line
+            case '8' :
+                // Set variables
+                $variables['{COMMAND}'] = $feature['command'];
+                $variables['{COMMAND_UCWORDS}'] = ucwords($feature['command']);
+
+                // Create /etc/di.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'di_command.txt',
+                    $newModulePath . 'etc/di.xml',
+                    $variables
+                );
+
+                // Create /Console
+                $this->io->checkAndCreateFolder($newModulePath.'Console', 0775);
+
+                // Create /Console/{Command}.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'command_line.txt',
+                    $newModulePath . 'Console/'.ucwords($feature['command']).'.php',
+                    $variables
+                );
+                break;
+
+            // Create REST API with ACL
+            case '9' :
+                // Set variables
+                $variables['{KEY}'] = $feature['key'];
+                $variables['{KEY_UCWORDS}'] = ucwords($feature['key']);
+
+                // Create /etc/webapi.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'webapi.txt',
+                    $newModulePath . 'etc/webapi.xml',
+                    $variables
+                );
+
+                // Create /etc/acl.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'acl.txt',
+                    $newModulePath . 'etc/acl.xml',
+                    $variables
+                );
+
+                // Create /etc/di.xml
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'di_rest.txt',
+                    $newModulePath . 'etc/di.xml',
+                    $variables
+                );
+
+                // Create /Api
+                $this->io->checkAndCreateFolder($newModulePath.'Api', 0775);
+
+                // Create /Api/{Key}Interface.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'rest_interface.txt',
+                    $newModulePath . 'Api/'.ucwords($feature['key']).'Interface.php',
+                    $variables
+                );
+
+                // Create /Model
+                $this->io->checkAndCreateFolder($newModulePath.'Model', 0775);
+
+                // Create /Model/{Key}.php
+                $this->createNewFile(
+                    $this->whDrafts . $draftSubFolder . 'rest_model.txt',
+                    $newModulePath . 'Model/'.ucwords($feature['key']).'.php',
+                    $variables
+                );
+                break;
+
+            default:
+                break;
+        endswitch;
 
         // Create /composer.json
         if($this->storeInfo->getComposerFile() || $this->storeInfo->getMagentoCloud()) {
@@ -178,10 +482,10 @@ class Create
 
         // Define theme's variables
         $variables = array(
-            'COMPANYNAME' => $this->storeInfo->getCompanyName(),
-            'THEMENAMELOWER' => strtolower($name),
-            'THEMENAME' => $name,
-            'EXTENDFROM' => $extend
+            '{COMPANYNAME}' => $this->storeInfo->getCompanyName(),
+            '{THEMENAMELOWER}' => strtolower($name),
+            '{THEMENAME}' => $name,
+            '{EXTENDFROM}' => $extend
         );
 
         // Create main theme folder

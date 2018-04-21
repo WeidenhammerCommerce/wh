@@ -1,0 +1,29 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Model;
+
+use {COMPANYNAME}\{MODULENAME}\Api\{KEY_UCWORDS}Interface;
+
+class {KEY_UCWORDS} implements {KEY_UCWORDS}Interface
+{
+    /**
+     * Returns greeting message to user
+     * To test it go to /rest/V1/{KEY}/name/{name_value}
+     *
+     * @api
+     * @param string $name Users name.
+     * @return string Greeting message with users name.
+     */
+    public function name($name)
+    {
+        return 'Hello, '.ucwords($name).'!';
+    }
+
+    /**
+     * You can use it on Controllers under Controller/Adminhtml (see example below)
+     */
+    /*protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed('{COMPANYNAME}_{MODULENAME}::{KEY}');
+    }*/
+}

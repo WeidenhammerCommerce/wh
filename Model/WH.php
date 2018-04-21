@@ -110,7 +110,7 @@ class WH extends Command
                     new InputArgument('action', InputArgument::OPTIONAL, 'The custom argument', null)
                 )
             )
-            ->setDescription('Company specific command')
+            ->setDescription('Creates a new shell command with a handful of M2 tools')
             ->setHelp(<<<EOF
 <comment>Info</comment>
 $ %command.full_name% <info>info:m2 (i:m2)</info> Shows information of the M2 instance
@@ -144,7 +144,6 @@ $ %command.full_name% <info>override:template (o:t)</info> <question>[name of th
 $ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (developer, production) 
 $ %command.full_name% <info>hints:on (h:on)</info> <question>[name of store]</question> Enables the Template Hints
 $ %command.full_name% <info>hints:off (h:off)</info> <question>[name of store]</question> Disables the Template Hints
-
 
 EOF
             );
@@ -198,7 +197,6 @@ EOF
             case 'info:store' :
             case 'i:store' : case 'info:s' :
             case 'i:s' :
-
                 $stores = $this->storeInfo->getAllStores();
 
                 $output->writeln('
@@ -219,20 +217,6 @@ EOF
                 $output->writeln('');
                 break;
 
-            /**
-             * Shows information of default Theme
-             */
-            /*case 'info:theme' :
-            case 'i:theme' : case 'info:t' :
-            case 'i:t' :
-                $output->writeln('
-<title>Theme Information</title>
-<info>Theme ID:</info> '.$this->storeInfo->getDefaultThemeId().'
-<info>Theme Company:</info> '.$this->storeInfo->getDefaultThemeCompany().'
-<info>Theme Title:</info> '.$this->storeInfo->getDefaultThemeName().'
-<info>Theme Path:</info> '.$this->storeInfo->getDefaultThemePath());
-                $output->writeln('');
-                break;*/
 
 
             /**
@@ -387,7 +371,7 @@ EOF
             case 'create:module' :
             case 'cr:module' : case 'create:m' :
             case 'cr:m' :
-                // Ask for a module name
+                // Name of Module
                 $moduleName = $this->askQuestion(
                     'Name of the module:',
                     NULL,
@@ -398,7 +382,6 @@ EOF
                     break;
                 }
 
-
                 // Ask for an install file
                 $installOption = $this->askQuestion(
                     'Create an InstallData file (<comment>y/n</comment>; Hit <comment>Enter</comment> to skip):',
@@ -407,19 +390,247 @@ EOF
                 );
                 $installOption = strtolower($installOption) == 'y' ? true : false;
 
-                // Ask for a di file
-                // Examples:
-                // - Magento\Wishlist\Block\Customer\Wishlist
-                // - Magento\Catalog\Model\Category\Attribute
-                $diClassName = $this->askQuestion(
-                    'Class to extend using di.xml (Hit <comment>Enter</comment> to skip):',
-                    NULL,
-                    $input, $output
+                // Module feature
+                $dialog = $this->getHelper('dialog');
+                $moduleFeature = array(
+                    'None', // 0
+                    'Extend Block/Model class', // 1
+                    'Create Plugin for a method', // 2
+                    'Create frontend page to display template', // 3
+                    'Create frontend page to display template using view-model', // 4
+                    'Create frontend page to return JSON', // 5
+                    'Attach Observer to Event', // 6
+                    'Replace constructor argument', // 7
+                    'Create new Command line', // 8
+                    'Create REST API with ACL', // 9
+                    'Create UiComponent (to-do)', // 10
+                    'Create a new Entity (to-do)' // 11
+                );
+                $selectedFeature = $dialog->select(
+                    $output,
+                    'Select a feature for your module (Hit <comment>Enter</comment> to skip):',
+                    $moduleFeature,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // enable multiselect
                 );
 
+                $feature = [];
+                $feature['selected'] = $selectedFeature;
+
+                switch ($selectedFeature) :
+                    case '1' :
+                        $output->writeln('
+<title>Extend Block/Model class with di.xml</title>');
+                        $diClassName = $this->askQuestion(
+                            'Block/Model class to extend (example: <comment>Magento\Wishlist\Block\Customer\Wishlist</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$diClassName) {
+                            $output->writeln('<error>You must enter a class to extend</error>');
+                            break;
+                        }
+                        $feature['class'] = $diClassName;
+                        break;
+
+                    case '2' :
+                        $output->writeln('
+<title>Create Plugin for a method with di.xml</title>');
+                        $className = $this->askQuestion(
+                            'Class to extend (example: <comment>Magento\Framework\Pricing\Render\Amount</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$className) {
+                            $output->writeln('<error>You must enter a class to extend</error>');
+                            break;
+                        }
+                        $feature['class'] = $className;
+
+                        $methodName = $this->askQuestion(
+                            'Method to extend (example: <comment>formatCurrency</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$methodName) {
+                            $output->writeln('<error>You must enter a method to extend</error>');
+                            break;
+                        }
+                        $feature['method'] = $methodName;
+
+                        // Plugin type
+                        $dialog = $this->getHelper('dialog');
+                        $pluginType = array(
+                            'Before',
+                            'After',
+                            'Around'
+                        );
+                        $selectedPluginType = $dialog->select(
+                            $output,
+                            'Select when to execute your plugin:',
+                            $pluginType,
+                            null,
+                            false,
+                            'Value "%s" is invalid',
+                            false // enable multiselect
+                        );
+                        if($methodName === null) {
+                            $output->writeln('<error>You must enter a method to extend</error>');
+                            break;
+                        }
+                        $feature['when'] = $selectedPluginType;
+                        break;
+
+                    case '3' :
+                        $output->writeln('
+<title>Create frontend page with Controller to display template</title>');
+                        $newPageName = $this->askQuestion(
+                            'URL for the new page (example: <comment>helloworld</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$newPageName) {
+                            $output->writeln('<error>You must enter a URL for the new page</error>');
+                            break;
+                        }
+                        $feature['newpage'] = $newPageName;
+                        break;
+
+                    case '4' :
+                        $output->writeln('
+<title>Create frontend page with Controller to display template using view-model</title>');
+                        $newPageName = $this->askQuestion(
+                            'URL for the new page (example: <comment>helloworld</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$newPageName) {
+                            $output->writeln('<error>You must enter a URL for the new page</error>');
+                            break;
+                        }
+                        $feature['newpage'] = $newPageName;
+                        break;
+
+                    case '5' :
+                        $output->writeln('
+<title>Create frontend page with Controller to return JSON</title>');
+                        $newPageName = $this->askQuestion(
+                            'URL for the new page (example: <comment>helloworld</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$newPageName) {
+                            $output->writeln('<error>You must enter a URL for the new page</error>');
+                            break;
+                        }
+                        $feature['newpage'] = $newPageName;
+                        break;
+
+                    case '6' :
+                        $output->writeln('
+<title>Attach Observer to Event</title>');
+                        $eventName = $this->askQuestion(
+                            'Event (example: <comment>catalog_controller_product_view</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$eventName) {
+                            $output->writeln('<error>You must enter an Event for the Observer</error>');
+                            break;
+                        }
+                        $feature['event'] = $eventName;
+
+                        $observerName = $this->askQuestion(
+                            'Observer name (example: <comment>AddSomeFunctionality</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$observerName) {
+                            $output->writeln('<error>You must enter a name for the Observer</error>');
+                            break;
+                        }
+                        $feature['observer'] = $observerName;
+                        break;
+
+                    case '7' :
+                        $output->writeln('
+<title>Replace constructor argument</title>');
+                        $diClassName = $this->askQuestion(
+                            'Block/Model class to extend (example: <comment>Magento\Braintree\Block\Form</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$diClassName) {
+                            $output->writeln('<error>You must enter a class to extend</error>');
+                            break;
+                        }
+                        $feature['class'] = $diClassName;
+
+                        $variableName = $this->askQuestion(
+                            'Name of constructor variable to replace (example: <comment>$paymentConfig</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$variableName) {
+                            $output->writeln('<error>You must enter a variable to replace</error>');
+                            break;
+                        }
+                        $feature['variable'] = $variableName;
+
+                        $newClassName = $this->askQuestion(
+                            'Block/Model class to use instead of '.$diClassName.' (example: <comment>'.$this->storeInfo->getCompanyName().'\\'.$moduleName.'\Block\NewForm</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$newClassName) {
+                            $output->writeln('<error>You must enter a new class to use instead of '.$diClassName.'</error>');
+                            break;
+                        }
+                        $feature['newclass'] = $newClassName;
+                        break;
+
+                    case '8' :
+                        $output->writeln('
+<title>Create new Command line</title>');
+                        $commandName = $this->askQuestion(
+                            'Name for the new command (example: <comment>helloworld</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$commandName) {
+                            $output->writeln('<error>You must enter a name for the command</error>');
+                            break;
+                        }
+                        $feature['command'] = $commandName;
+                        break;
+
+                    case '9' :
+                        $output->writeln('
+<title>Create REST API with ACL</title>');
+                        $keyName = $this->askQuestion(
+                            'Name of the key (example: <comment>hello</comment>):',
+                            NULL,
+                            $input, $output
+                        );
+                        if(!$keyName) {
+                            $output->writeln('<error>You must enter a name for the key</error>');
+                            break;
+                        }
+                        $feature['key'] = $keyName;
+                        break;
+                endswitch;
+
                 // Create module
-                if($this->create->createModule($moduleName, $diClassName, $installOption)) {
-                    $output->writeln('The module <info>' . $moduleName . '</info> was created successfully.');
+                if($this->create->createModule($moduleName, $installOption, $feature)) {
+                    $output->writeln('');
+                    $output->writeln('The module <info>' . $moduleName . '</info> was created successfully.
+Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName.'</info> to enable it');
+                    $output->writeln('');
+
+                    // echo shell_exec('bin/magento module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+
                 } else {
                     $output->writeln('<error>There was an error creating the new module</error>');
                 }
@@ -832,33 +1043,43 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
              * List of Magento Cloud commands
              */
             case 'cloud' : case 'mc' :
+            $projectId = $this->storeInfo->getMagentoCloudProjectId();
+            if(empty($projectId)) {
+                $output->writeln('');
+                $output->writeln('<error>Your project is not set as a Magento Cloud project.
+Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>
+');
+                break;
+            }
+
+            echo shell_exec('magento-cloud');
+
+            $output->writeln('');
             $dialog = $this->getHelper('dialog');
             $mcOptions = array(
-                'See project info', // 0
-                'See your account info', // 1
-                'See all users', // 2
-                'See all envs', // 3
-                'See env info', // 4
-                'See env URLs', // 5
-                'See env logs', // 6
-                'See env activity (last 10)', // 7
-                'Create branch', // 8
-                'Push current branch (to server branch with the same name)', // 9
-                'Activate env', // 10
-                'Download dump of env database', // 11
-                'Get command to connect to env through SSH' // 12
+                '<info>[General Info]</info> Project', // 0
+                '<info>[General Info]</info> My Account', // 1
+                '<info>[General Info]</info> All users', // 2
+                '<info>[General Info]</info> All envs', // 3
+                '<info>[Environment Info]</info> <question>[env name]</question> Env data', // 4
+                '<info>[Environment Info]</info> <question>[env name]</question> Env URLs', // 5
+                '<info>[Environment Info]</info> <question>[env name]</question> Env logs', // 6
+                '<info>[Environment Info]</info> <question>[env name]</question> Env activity (last 10)', // 7
+                '<info>[Branch Action]</info> <question>[branch name, parent branch]</question> Create', // 8
+                '<info>[Branch Action]</info> <question>[branch name]</question> Push current (to server branch with the same name)', // 9
+                '<info>[Branch Action]</info> <question>[branch name]</question> Activate remote branch/env', // 10
+                '<info>[Other]</info> <question>[env name]</question> Download dump of env database', // 11
+                '<info>[Other]</info> <question>[env name]</question> Get command to connect to env through SSH' // 12
             );
             $selected = $dialog->select(
                 $output,
-                'Select a Magento Cloud command for the current project:',
+                '<title>Select an option for the current project (ID: '.$projectId.'):</title>',
                 $mcOptions,
                 0,
                 false,
                 'Value "%s" is invalid',
                 false // enable multiselect
             );
-
-            $projectId = $this->storeInfo->getMagentoCloudProjectId();
 
             $requiredEnv = array(4,5,6,7,10,11,12);
             if(in_array($selected, $requiredEnv)) {
@@ -1096,48 +1317,8 @@ Please remember to remove the Magento copyright once you copied it.
              */
             case 'hints:on' :
             case 'h:on' :
-                // Prepare connection
-                $connection = $this->resource->getConnection('default');
-
-                // Ask for store name
-                $defaultStoreName = $this->storeInfo->getDefaultStoreName();
-
-                // If multistore, ask for store name
-                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
-                    $storeName = $this->askQuestion(
-                        'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
-                        $defaultStoreName,
-                        $input, $output
-                    );
-                } else {
-                    $storeName = $defaultStoreName;
-                }
-
-                // Get store id
-                $storeId = $this->storeInfo->getDefaultStoreId();
-                if($storeName !== $defaultStoreName) {
-                    $result = $connection->fetchRow("SELECT store_id FROM store WHERE name LIKE '%$storeName%'");
-                    $storeId = $result['store_id'];
-                }
-
-                // Check if they are already enabled
-                $result = $connection->fetchRow("
-                    SELECT config_id FROM core_config_data
-                    WHERE path = 'dev/debug/template_hints_storefront'
-                      AND scope_id = $storeId
-                      AND value = 1
-                ");
-                if(null !== $result['config_id']) {
-                    $output->writeln("Templates Hints were already <info>enabled</info> for the <info>".$storeName."</info> store");
-                } else {
-                    // Enable the Template Hints
-                    $this->config->saveConfig('dev/debug/template_hints_storefront', 1, 'stores', $storeId);
-
-                    // Remove required cache
-                    $this->cache->removeBasicCache();
-
-                    $output->writeln("Templates Hints are now <info>enabled</info> for the <info>".$storeName."</info> store");
-                }
+                echo shell_exec('bin/magento dev:template-hints:enable');
+                $this->cache->removeBasicCache();
                 break;
 
 
@@ -1146,52 +1327,9 @@ Please remember to remove the Magento copyright once you copied it.
              */
             case 'hints:off' :
             case 'h:off' :
-                // Ask for store name
-                $defaultStoreName = $this->storeInfo->getDefaultStoreName();
-
-                // If multistore, ask for store name
-                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
-                    $storeName = $this->askQuestion(
-                        'Name of the store (Hit <comment>Enter</comment> to use <info>'.$defaultStoreName.'</info>):',
-                        $defaultStoreName,
-                        $input, $output
-                    );
-                } else {
-                    $storeName = $defaultStoreName;
-                }
-
-                $connection = $this->resource->getConnection('default');
-                $result = $connection->fetchRow("SELECT store_id FROM store WHERE name LIKE '%$storeName%'");
-                $storeId = $result['store_id'];
-
-                // Validate
-                if(null == $storeId) {
-                    $output->writeln('<error>We couldn\'t find any storeId for the <info>'.$storeName.'</info> store</error>');
-                }
-
-                $connection = $this->resource->getConnection('default');
-                $result = $connection->fetchRow("
-                    SELECT config_id FROM core_config_data
-                    WHERE path = 'dev/debug/template_hints_storefront'
-                      AND scope_id = $storeId
-                      AND value = 1
-                ");
-                if(null !== $result['config_id']) {
-                    // Disable the Template Hints
-                    $this->config->deleteConfig('dev/debug/template_hints_storefront', 'stores', $storeId);
-
-                    // Remove required cache
-                    $this->cache->removeBasicCache();
-
-                    $output->writeln("Templates Hints <info>disabled</info> for the <info>".$storeName."</info> store");
-                } else {
-                    $output->writeln("Templates Hints were already <info>disabled</info>");
-                }
+                echo shell_exec('bin/magento dev:template-hints:disable');
+                $this->cache->removeBasicCache();
                 break;
-
-
-
-
 
 
 
@@ -1217,12 +1355,13 @@ Please remember to remove the Magento copyright once you copied it.
 
                 if($companyName == NULL || $defaultTheme == NULL) {
                     $output->writeln('<error>Your company name and/or default theme is missing in the app/etc/env.php file. 
-Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>');
+Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>
+');
                 } else {
                     $output->writeln(
                         'The module <info>WH</info> is installed and working correctly.
-- Your company name is <info>'.$companyName.'</info>.
-- Your default theme name is <info>'.$defaultTheme.'</info>.                    
+- Your company name is <info>'.$companyName.'</info>
+- Your default theme name is <info>'.$defaultTheme.'</info>                    
 Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
                 }
 

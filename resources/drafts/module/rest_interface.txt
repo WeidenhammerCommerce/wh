@@ -1,0 +1,15 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Api;
+
+interface {KEY_UCWORDS}Interface
+{
+    /**
+     * Example: returns greeting message to user
+     *
+     * @api
+     * @param string $name Users name
+     * @return string Greeting message with users name
+     */
+    public function name($name);
+}

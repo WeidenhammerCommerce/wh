@@ -89,11 +89,6 @@ class StoreInfo
         return $this->storeManager->getStore()->getId();
     }
 
-    public function getDefaultStoreName()
-    {
-        return $this->storeManager->getStore()->getName();
-    }
-
     public function getDefaultStoreUrl()
     {
         return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
@@ -121,6 +116,11 @@ class StoreInfo
     public function getCompanyName()
     {
         return $this->deploymentConfig->get('wh/company_name');
+    }
+
+    public function getDefaultStoreName()
+    {
+        return $this->deploymentConfig->get('wh/store_name');
     }
 
     public function getDefaultTheme()

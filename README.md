@@ -1,6 +1,13 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.0.8
+
+- Added options to the create:module command:
+ ```
+ 
+ ```
+
 ## v.0.0.7
 
 - Added cloud command
@@ -10,19 +17,6 @@
 - Started using the env.php file to stored user variables
 - Added create:dump
 - Added shell commands (permissions, static)
-
-## v.0.0.5
-
-- Added info:m2
-- Added check for custom theme
-- Improved the Cache Block
-
-## v.0.0.4
-
-- Added create:module
-- Added create:theme
-- Added create:dummy
-- Improved clean:styles
 
 ## :eye: Installation
 
@@ -36,6 +30,7 @@ $ composer require hammer/wh:dev-master
   array (
       'company_name' => 'CompanyName', // required, where you place your modules (app/code/[CompanyName])
       'default_theme' => 'CompanyName/ThemeName', // required, theme you're currently working on
+      'default_store' => 'CompanyName/StoreName', // required, store you're currently working on
       'localization' => 'en_US', // default localization code
       'composer_files' => 1, // 1 or 0, 1 creates a composer.json on new modules
       'module_version' => '0.0.1', // default version of new modules 

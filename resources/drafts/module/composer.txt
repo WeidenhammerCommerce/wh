@@ -1,8 +1,8 @@
 {
-  "name": "COMPANYNAMELOWER/MODULENAMELOWER",
-  "description": "A description of the MODULENAME module",
+  "name": "{COMPANYNAMELOWER}/{MODULENAMELOWER}",
+  "description": "A description of the {MODULENAME} module",
   "type": "magento2-module",
-  "version": "MODULEVERSION",
+  "version": "{MODULEVERSION}",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -14,7 +14,7 @@
   "autoload": {
     "files": [ "registration.php" ],
     "psr-4": {
-      "COMPANYNAME\\MODULENAME\\": ""
+      "{COMPANYNAME}\\{MODULENAME}\\": ""
     }
   }
 }
