@@ -1,0 +1,11 @@
+<?php
+
+namespace {NAMESPACENAME};
+
+/**
+ * Note: [Replace constructor argument] applies only to your module
+ */
+class {CLASSNAME} extends \{OLDCLASS}
+{
+    // Your code goes here...
+}

@@ -48,7 +48,7 @@ class Create
 
 
 
-    public function createModule($name, $install, $feature)
+    public function createModule($name, $setupFiles, $feature)
     {
         $draftSubFolder = 'module/';
 
@@ -85,16 +85,18 @@ class Create
         );
 
         // Create Setup/InstallData.php
-        if($install) {
+        if($setupFiles) {
             // Create /Setup
             $this->io->checkAndCreateFolder($newModulePath.'Setup', 0775);
 
-            // Create /etc/InstallData.php
-            $this->createNewFile(
-                $this->whDrafts.$draftSubFolder.'installdata.txt',
-                $newModulePath.'Setup/InstallData.php',
-                $variables
-            );
+            // Create /Setup files
+            foreach($setupFiles as $setupFile) {
+                $this->createNewFile(
+                    $this->whDrafts.$draftSubFolder.strtolower($setupFile).'.txt',
+                    $newModulePath.'Setup/'.$setupFile.'.php',
+                    $variables
+                );
+            }
         }
 
         // Create the selected feature, if any

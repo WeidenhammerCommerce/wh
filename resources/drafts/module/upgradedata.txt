@@ -2,19 +2,21 @@
 
 namespace {COMPANYNAME}\{MODULENAME}\Setup;
 
-use Magento\Framework\Setup\InstallDataInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 
-class InstallData implements InstallDataInterface
+class InstallData implements UpgradeDataInterface
 {
-    public function install(
+    public function upgrade(
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
     ) {
         $setup->startSetup();
 
-        // Your code goes here...
+        if (version_compare($context->getVersion(), '0.0.2') < 0) {
+            // Your code goes here...
+        }
 
         $setup->endSetup();
     }

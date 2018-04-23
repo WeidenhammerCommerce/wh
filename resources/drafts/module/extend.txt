@@ -2,6 +2,9 @@
 
 namespace {NAMESPACENAME};
 
+/**
+ * Note: [Class Preference] applies to the whole app
+ */
 class {CLASSNAME} extends \{EXTENDFROM}
 {
     // Your code goes here...

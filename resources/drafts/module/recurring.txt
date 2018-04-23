@@ -1,0 +1,24 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Setup;
+
+use Magento\Framework\Setup\InstallSchemaInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\ModuleContextInterface;
+
+class Recurring implements InstallSchemaInterface
+{
+    public function install(
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        $setup->startSetup();
+
+        // Your code goes here...
+
+        // Example: query to be executed after any module setup
+        // $installer->getConnection()->query('SOME QUERY');
+
+        $setup->endSetup();
+    }
+}

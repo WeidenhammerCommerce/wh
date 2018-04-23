@@ -329,7 +329,7 @@ EOF
 
                 $selected = $dialog->select(
                     $output,
-                    'Please select one (or more, separated by comma) cache folders to clear:',
+                    'Select one (or more, separated by comma) cache folders to clear:',
                     $cacheFolders,
                     0,
                     false,
@@ -382,16 +382,35 @@ EOF
                     break;
                 }
 
-                // Ask for an install file
-                $installOption = $this->askQuestion(
-                    'Create an InstallData file (<comment>y/n</comment>; Hit <comment>Enter</comment> to skip):',
-                    'n',
-                    $input, $output
+                // Ask for setup files
+                $setupOptions = array(
+                    'None', // 0
+                    'InstallData', // 1
+                    'UpgradeData', // 2
+                    'InstallSchema', // 3
+                    'UpgradeSchema', // 4
+                    'Uninstall', // 5
+                    'Recurring' // 6
                 );
-                $installOption = strtolower($installOption) == 'y' ? true : false;
+                $dialog = $this->getHelper('dialog');
+                $selectedSetup = $dialog->select(
+                    $output,
+                    'Select one (or more, separated by comma) setup files to create; Hit <comment>Enter</comment> to skip:',
+                    $setupOptions,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    true // enable multiselect
+                );
+                $selectedSetupFiles = array_map(function($f) use ($setupOptions) {
+                    return $setupOptions[$f];
+                }, $selectedSetup);
+
+                $selectedSetupFiles = count($selectedSetupFiles) == 1 && $selectedSetupFiles[0] == 'None' ?
+                    null : $selectedSetupFiles;
+
 
                 // Module feature
-                $dialog = $this->getHelper('dialog');
                 $moduleFeature = array(
                     'None', // 0
                     'Extend Block/Model class', // 1
@@ -612,7 +631,7 @@ EOF
                 endswitch;
 
                 // Create module
-                if($this->create->createModule($moduleName, $installOption, $feature)) {
+                if($this->create->createModule($moduleName, $selectedSetupFiles, $feature)) {
                     $output->writeln('');
                     $output->writeln('The module <info>' . $moduleName . '</info> was created successfully.
 Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName.'</info> to enable it');

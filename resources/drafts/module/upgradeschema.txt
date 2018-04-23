@@ -1,0 +1,38 @@
+<?php
+
+namespace {COMPANYNAME}\{MODULENAME}\Setup;
+
+use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\ModuleContextInterface;
+
+class InstallSchema implements UpgradeSchemaInterface
+{
+    public function upgrade(
+        SchemaSetupInterface $setup,
+        ModuleContextInterface $context
+    ) {
+        $setup->startSetup();
+
+        if (version_compare($context->getVersion(), '0.0.2', '<=')) {
+
+            // Your code goes here...
+
+            /* Example: how to add column to table
+            /*
+            $setup->getConnection()->addColumn(
+                $setup->getTable('my_table'),
+                'my_new_column',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 255,
+                    'nullable' => true,
+                    'comment' => ''
+                ]
+            );
+            */
+        }
+
+        $setup->endSetup();
+    }
+}
