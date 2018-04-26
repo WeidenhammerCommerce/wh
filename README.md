@@ -48,12 +48,17 @@ $ composer require hammer/wh:dev-master
       'module_version' => '0.0.1', // default version of new modules 
       'dummy_categories' => 1, // default qty of dummy categories
       'dummy_products' => 1, // default qty of dummy products
+      'view_product_link' => 1, // 1 or 0, 1 shows 'View Product' link on Admin
       'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
       'magento_cloud' => 0, // 1 or 0, 1 if using Magento Cloud	
-      'magento_cloud_project_id' => '' // magento cloud project ID, if any
+      'magento_cloud_project_id' => '' // magento cloud project ID,  if any
   )  
 ```
-Note: if multistore, we recommend setting the default_theme along with ask_if_multistore=0 to work faster
+Notes for faster development
+1) We recommend creating an system alias for "bin/magento". Example: "bm"
+2) If multistore, we recommend setting the "default_theme" config along with "ask_if_multistore=0"
+
+
 
 - Enable the WH module:
 ```
@@ -97,7 +102,8 @@ $ bin/magento wh info:m2 (alias i:m2)
 $ bin/magento wh info:store (alias i:s)
 ```
 
-### List all the modules of your company (with its code version)
+### List modules (with its code version)
+* (multiselect) Type of modules
 
 ```
 $ bin/magento wh info:modules (alias i:m)
@@ -126,14 +132,14 @@ $ bin/magento wh cache:layouts (alias c:l)
 $ bin/magento wh cache:styles (alias c:s)
 ```
 
-### Removes all cache (everything within /var and /pub/static) 
+### Removes all cache (everything within /var and /pub/static, and /generated if Cloud) 
 
 ```
 $ bin/magento wh cache:all (alias c:a)
 ```
 
 ### Removes selected cache (separated by comma) 
-* (string) Folders to remove (example: 1,3,5)
+* (multiselect) Folders to remove (example: 1,3,5)
 ```
 $ bin/magento wh cache:custom (alias c:c)
 ```
@@ -150,8 +156,9 @@ $ bin/magento wh cache:admin (alias c:ad)
 
 ### Create new module
 * (string) Name of the module
-* (y/n) Create InstallData file?
-* (string) Class to extend using di.xml (example: Magento\Wishlist\Block\Customer\Wishlist or Magento\Catalog\Model\Category\Attribute)
+* (multiselect) Setup files (example: 1,3 to create InstallData.php and InstallSchema.php)
+* (select) Feature (example: 2 to create a plugin)
+* (other options) Based on the Feature selected
 ```
 $ bin/magento wh create:module (alias cr:m)
 ```
@@ -215,22 +222,34 @@ $ bin/magento wh customer:password (alias a:p)
 
 
 
-## :eye: SHELL commands
-
-### Set proper permissions to all files and folders
-```
-$ bin/magento wh shell:permissions (alias s:p)
-```
+## :eye: FRONTEND TOOLS commands
 
 ### Deploy frontend static content for given theme (no fonts)
-* (string) Name of the theme (if multistore)
+* (string) Name of the theme
 ```
-$ bin/magento wh shell:static (alias s:s)
+$ bin/magento wh tools:static (alias t:s)
+```
+
+### Copy template to your Theme in order to override a core template
+* (string) Name of the theme
+* (string) Path to the existing template (example: vendor/magento/module-checkout/view/frontend/templates/cart.phtml)
+```
+$ bin/magento wh override:template (alias o:t)
+```
+
+### Enable the Template Hints
+```
+$ bin/magento wh hints:on (alias h:on)
+```
+
+### Disable the Template Hints
+```
+$ bin/magento wh hints:off (alias h:off)
 ```
 
 
 
-## :eye: OTHER commands
+## :eye: OTHER TOOLS commands
 
 ### List of Magento Cloud commands
 ```
@@ -256,29 +275,21 @@ Select a Magento Cloud command for the project:
 $ bin/magento wh module:downgrade (alias m:d)
 ```
 
-### Return path to your Theme in order to override a core template
-* (string) Name of the theme
-* (string) Path to the existing template (example: vendor/magento/module-checkout/view/frontend/templates/cart.phtml)
+### Regenerate a URL rewrites of products/categories in all/specific store/s
+* (multiselect) Store
 ```
-$ bin/magento wh override:template (alias o:t)
+$ bin/magento wh tools:regenerate (alias t:r)
+```
+
+### Set proper permissions to all files and folders
+```
+$ bin/magento wh tools:permissions (alias t:p)
 ```
 
 ### Deploy to given mode
-* (string) Name of the mode (developer or production)
+* (multistore) Name of the mode (show, developer or production)
 ```
 $ bin/magento wh deploy:mode (alias d:m)
-```
-
-### Enables the Template Hints
-
-```
-$ bin/magento wh hints:on (alias h:on)
-```
-
-### Disable the Template Hints
-
-```
-$ bin/magento wh hints:off (alias h:off)
 ```
 
 
