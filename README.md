@@ -224,13 +224,13 @@ $ bin/magento wh customer:password (alias a:p)
 
 ## :eye: FRONTEND TOOLS commands
 
-### Deploy frontend static content for given theme (no fonts)
+### Deploy frontend static content for given theme
 * (string) Name of the theme
 ```
 $ bin/magento wh tools:static (alias t:s)
 ```
 
-### Copy template to your Theme in order to override a core template
+### Copy template from the core to your theme, in order to override it
 * (string) Name of the theme
 * (string) Path to the existing template (example: vendor/magento/module-checkout/view/frontend/templates/cart.phtml)
 ```
@@ -255,18 +255,19 @@ $ bin/magento wh hints:off (alias h:off)
 ```
 $ bin/magento wh cloud (alias mc)
 Select a Magento Cloud command for the project:
-  [0 ] See project info
-  [1 ] See your account info
-  [2 ] See all users
-  [3 ] See all envs
-  [4 ] See env info
-  [5 ] See env URLs
-  [6 ] See env logs
-  [7 ] See env activity (last 10)
-  [8 ] Create branch
-  [9 ] Activate env
-  [10] Download dump of env database
-  [11] Get command to connect to env through SSH
+  [0 ] [General Info] Project
+  [1 ] [General Info] My Account
+  [2 ] [General Info] All users
+  [3 ] [General Info] All envs
+  [4 ] [Environment Info] [env name] Env data
+  [5 ] [Environment Info] [env name] Env URLs
+  [6 ] [Environment Info] [env name] Env logs
+  [7 ] [Environment Info] [env name] Env activity (last 10)
+  [8 ] [Branch Action] [branch name, parent branch] Create
+  [9 ] [Branch Action] [branch name] Push current (to server branch with the same name)
+  [10] [Branch Action] [branch name] Activate remote branch/env
+  [11] [Other] [env name] Download dump of env database
+  [12] [Other] [env name] Get command to connect to env through SSH
 ```
 
 ### Downgrades the version of the database module to the one on the code
