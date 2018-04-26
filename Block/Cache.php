@@ -1,8 +1,16 @@
 <?php
+/**
+ * Remove cache
+ *
+ * @package Hammer_WH
+ * @author Sebastian De Cicco <seb.decc@gmail.com>
+ * @copyright 2018 Sebastian De Cicco
+ * @license OSL-3.0, AFL-3.0
+ */
+
 namespace Hammer\WH\Block;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-
 use Hammer\WH\Settings\StoreInfo;
 
 class Cache

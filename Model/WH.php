@@ -39,6 +39,7 @@ use Hammer\WH\Settings\StoreInfo;
 use Hammer\WH\Block\Cache;
 use Hammer\WH\Block\Create;
 use Hammer\WH\Block\Dummy;
+use Hammer\WH\Block\Regenerate;
 
 class WH extends Command
 {
@@ -61,6 +62,7 @@ class WH extends Command
     protected $cache;
     protected $create;
     protected $dummy;
+    protected $regenerate;
 
     public function __construct(
         State $appState,
@@ -77,7 +79,8 @@ class WH extends Command
         StoreInfo $storeInfo,
         Cache $cache,
         Create $create,
-        Dummy $dummy
+        Dummy $dummy,
+        Regenerate $regenerate
     )
     {
         $this->appState = $appState;
@@ -97,6 +100,7 @@ class WH extends Command
         $this->cache = $cache;
         $this->create = $create;
         $this->dummy = $dummy;
+        $this->regenerate = $regenerate;
 
         parent::__construct();
     }
@@ -115,7 +119,7 @@ class WH extends Command
 <comment>Info</comment>
 $ %command.full_name% <info>info:m2 (i:m2)</info> Shows information of the M2 instance
 $ %command.full_name% <info>info:store (i:s)</info> Shows information of all of the stores
-$ %command.full_name% <info>info:modules (i:m)</info> List all the modules of your company (with its code version)
+$ %command.full_name% <info>info:modules (i:m)</info> <question>[type of modules]</question> List modules (with its code version)
 <comment>Cache</comment>
 $ %command.full_name% <info>clean:templates (c:t)</info> Removes the specific cache to regenerate the templates
 $ %command.full_name% <info>clean:layouts (c:l)</info> Removes the specific cache to regenerate the layouts
@@ -134,16 +138,17 @@ $ %command.full_name% <info>customer:password (c:p)</info> <question>[email and 
 <comment>Admin</comment>
 $ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, username and password]</question> Creates an admin user
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
-<comment>Shell</comment>
-$ %command.full_name% <info>shell:permissions (s:p)</info> Set proper permissions to all files and folders
-$ %command.full_name% <info>shell:static (s:s)</info> <question>[name of theme]</question> Deploy static content for given theme 
-<comment>Others</comment>
+<comment>Frontend Tools</comment>
+$ %command.full_name% <info>tools:static (t:s)</info> <question>[name of theme]</question> Deploy static content for given theme
+$ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
+$ %command.full_name% <info>hints:on (h:on)</info> Enables the Template Hints
+$ %command.full_name% <info>hints:off (h:off)</info> Disables the Template Hints
+<comment>Other Tools</comment>
 $ %command.full_name% <info>cloud (mc)</info> List of Magento Cloud commands
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
-$ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
-$ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (developer, production) 
-$ %command.full_name% <info>hints:on (h:on)</info> <question>[name of store]</question> Enables the Template Hints
-$ %command.full_name% <info>hints:off (h:off)</info> <question>[name of store]</question> Disables the Template Hints
+$ %command.full_name% <info>tools:regenerate (t:r)</info> <question>[store]</question> Regenerate a URL rewrites of products/categories in all/specific store/s
+$ %command.full_name% <info>tools:permissions (t:p)</info> Set proper permissions to all files and folders
+$ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (show, developer or production) 
 
 EOF
             );
@@ -228,14 +233,58 @@ EOF
                 // Show list of enabled company modules
                 $output->writeln('<info>Enabled modules:</info>');
                 $enabledQty = 0;
+
+                // Module type
+                $moduleType = array(
+                    'All modules', // 0
+                    'Magento modules', // 1
+                    'All except Magento modules', // 2
+                    'My company modules' // 3
+                );
+                $dialog = $this->getHelper('dialog');
+                $selectedType = $dialog->select(
+                    $output,
+                    'Select the type of modules to list (<comment>Enter</comment> to show all):',
+                    $moduleType,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // enable multiselect
+                );
+                $output->writeln('');
+
                 foreach ($this->moduleList->getAll() as $m) {
-                    if (strpos($m['name'], $this->storeInfo->getCompanyName()) !== false) {
-                        $enabledQty++;
-                        $output->writeln($m['name'] . ' -> ' . $m['setup_version']);
-                    }
+                    switch($selectedType) :
+                        case 0 :
+                            $enabledQty++;
+                            $output->writeln($m['name'] . ' -> ' . $m['setup_version']);
+                            break;
+                        case 1 :
+                            if (strpos($m['name'], 'Magento_') !== false) {
+                                $enabledQty++;
+                                $output->writeln($m['name'] . ' -> ' . $m['setup_version']);
+                            }
+                            break;
+                        case 2 :
+                            if (strpos($m['name'], 'Magento_') === false) {
+                                $enabledQty++;
+                                $output->writeln($m['name'] . ' -> ' . $m['setup_version']);
+                            }
+                            break;
+                        case 3 :
+                            if (strpos($m['name'], $this->storeInfo->getCompanyName()) !== false) {
+                                $enabledQty++;
+                                $output->writeln($m['name'] . ' -> ' . $m['setup_version']);
+                            }
+                            break;
+                    endswitch;
                 }
                 if(!$enabledQty) {
                     $output->writeln('Nothing found');
+                    $output->writeln('');
+                } else {
+                    $output->writeln('<title>Total: '.$enabledQty.'</title>');
+                    $output->writeln('');
                 }
 
                 // Show list of disabled company modules
@@ -245,14 +294,37 @@ EOF
                 $disabledModules = array_diff($this->fullModuleList->getNames(), $enabledModules);
                 $disabledQty = 0;
                 foreach ($disabledModules as $dm) {
-                    if (strpos($dm, $this->storeInfo->getCompanyName()) !== false) {
-                        $disabledQty++;
-                        $output->writeln($dm);
-                    }
+                    switch($selectedType) :
+                        case 0 :
+                            $disabledQty++;
+                            $output->writeln($dm);
+                            break;
+                        case 1 :
+                            if (strpos($dm, 'Magento_') !== false) {
+                                $disabledQty++;
+                                $output->writeln($dm);
+                            }
+                            break;
+                        case 2 :
+                            if (strpos($dm, 'Magento_') === false) {
+                                $disabledQty++;
+                                $output->writeln($dm);
+                            }
+                            break;
+                        case 3 :
+                            if (strpos($dm, $this->storeInfo->getCompanyName()) !== false) {
+                                $disabledQty++;
+                                $output->writeln($dm);
+                            }
+                            break;
+                    endswitch;
                 }
                 if(!$disabledQty) {
                     $output->writeln('Nothing found');
+                } else {
+                    $output->writeln('<title>Total: '.$disabledQty.'</title>');
                 }
+                $output->writeln('');
                 break;
 
 
@@ -268,9 +340,9 @@ EOF
             case 'c:templates' : case 'c:layouts' :
             case 'clean:t' : case 'clean:l' :
             case 'c:t' : case 'c:l' :
-            $this->cache->removeBasicCache();
-            $output->writeln('<info>Cache cleared.</info>');
-            break;
+                $this->cache->removeBasicCache();
+                $output->writeln('<info>Cache cleared.</info>');
+                break;
 
 
             /**
@@ -284,7 +356,7 @@ EOF
                 // If multistore, ask for theme name
                 if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
-                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        'Name of the theme (<comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
                         $dftTheme,
                         $input, $output
                     );
@@ -395,7 +467,7 @@ EOF
                 $dialog = $this->getHelper('dialog');
                 $selectedSetup = $dialog->select(
                     $output,
-                    'Select one (or more, separated by comma) setup files to create; Hit <comment>Enter</comment> to skip:',
+                    'Select one (or more, separated by comma) setup files to create (<comment>Enter</comment> to skip):',
                     $setupOptions,
                     0,
                     false,
@@ -427,7 +499,7 @@ EOF
                 );
                 $selectedFeature = $dialog->select(
                     $output,
-                    'Select a feature for your module (Hit <comment>Enter</comment> to skip):',
+                    'Select a feature for your module (<comment>Enter</comment> to skip):',
                     $moduleFeature,
                     0,
                     false,
@@ -666,7 +738,7 @@ Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyNa
                 $dialog = $this->getHelper('dialog');
                 $extendOptions = array(
                     'Magento/blank',
-                    'Magento/Luma',
+                    'Magento/Luma (beta)',
                     'Other'
                 );
                 $selected = $dialog->select(
@@ -704,7 +776,7 @@ Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyNa
                 // Ask for a categories qty
                 $dftCatQty = $this->storeInfo->getDefaultDummyCategoriesQty();
                 $categoriesQty = $this->askQuestion(
-                    'Quantity of categories (Hit <comment>Enter</comment> to create <info>'.$dftCatQty.'</info>):',
+                    'Quantity of categories (<comment>Enter</comment> to create <info>'.$dftCatQty.'</info>):',
                     $dftCatQty,
                     $input, $output
                 );
@@ -717,7 +789,7 @@ Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyNa
                 // Ask for a products qty
                 $dftProdQty = $this->storeInfo->getDefaultDummyProductsQty();
                 $productsQty = $this->askQuestion(
-                    'Quantity of products (Hit <comment>Enter</comment> to create <info>'.$dftProdQty.'</info>):',
+                    'Quantity of products (<comment>Enter</comment> to create <info>'.$dftProdQty.'</info>):',
                     $dftCatQty,
                     $input, $output
                 );
@@ -885,7 +957,7 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
              **********************************************************************************************************/
 
             /**
-             * Update an admin password
+             * Create admin user
              */
             case 'admin:create' :
             case 'a:create' : case 'admin:cr' :
@@ -947,7 +1019,7 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
 
 
             /**
-             * Update an admin password
+             * Update admin password
              */
             case 'admin:password' :
             case 'a:password' : case 'admin:p' :
@@ -995,32 +1067,21 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
 
 
             /**
-             * SHELL
+             * FRONTEND TOOLS
              **********************************************************************************************************/
-
-            /**
-             * Set write permissions
-             */
-            case 'shell:permissions' :
-            case 's:p' :
-                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait');
-                shell_exec('sudo find . -type f -exec chmod 660 {} ";" && sudo find . -type d -exec chmod 770 {} ";"');
-                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
-                shell_exec('chmod u+x bin/magento');
-                $output->writeln('Proper permissions given to all <info>M2</info> files and folders');
-                break;
 
             /**
              * Deploy static content
              */
-            case 'shell:static' :
-            case 's:s' :
+            case 'tools:static' :
+            case 'tools:s' : case 't:static' :
+            case 't:s' :
                 $dftTheme = $this->storeInfo->getDefaultTheme();
 
                 // If multistore, ask for theme name
                 if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
                     $theme = $this->askQuestion(
-                        'Name of the theme (Hit <comment>Enter</comment> to use <info>'.$dftTheme.'</info>):',
+                        'Name of the theme (<comment>Enter</comment> to use <info>'.$dftTheme.'</info>):',
                         $dftTheme,
                         $input, $output
                     );
@@ -1028,9 +1089,9 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                     $theme = $dftTheme;
                 }
 
-                // Force it? (new in Magento 2.2.2)
+                // Force it? (required in Magento 2.2.2)
                 $forceOption = $this->askQuestion(
-                    'Force it? (<comment>y/n</comment>; Hit <comment>Enter</comment> to skip):',
+                    'Force it? (<comment>y/n</comment>; <comment>Enter</comment> to skip):',
                     'n',
                     $input, $output
                 );
@@ -1038,155 +1099,222 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 $forceOption = strtolower($forceOption) == 'y' ? ' -f' : '';
 
                 $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
-                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --no-fonts --theme '.$theme . $forceOption);
+                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --theme '.$theme . $forceOption);
+                break;
+
+            /**
+             * Override template
+             * Examples:
+             * - vendor/magento/module-checkout/view/frontend/templates/cart.phtml
+             * @todo: copy the file automatically
+             */
+            case 'override:template' :
+            case 'o:template' : case 'override:t' :
+            case 'o:t' :
+                $dftTheme = $this->storeInfo->getDefaultTheme();
+
+                // If multistore, ask for theme name
+                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
+                    $theme = $this->askQuestion(
+                        'Name of the theme (<comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
+                        $dftTheme,
+                        $input, $output
+                    );
+                } else {
+                    $theme = $dftTheme;
+                }
+
+                // Ask for file to be overridden
+                $file = $this->askQuestion(
+                    'Path of the template to be overridden (example: <info>vendor/magento/module-checkout/view/frontend/templates/cart.phtml</info>):',
+                    NULL,
+                    $input, $output
+                );
+                if(!$file) {
+                    $output->writeln('<error>Please enter a path of the file to override</error>');
+                    break;
+                }
+
+                // Get path to override template
+                $fullPath = $this->create->overrideTemplate($file, $theme);
+
+                if(!$fullPath) {
+                    $output->writeln('<error>The template already exists within the '.$theme.' theme</error>');
+                    break;
+                }
+
+                $output->writeln('
+Template copied to <info>'.$fullPath.'</info>
+Remember to remove the Magento copyright from the top of the file.
+');
+                break;
+
+
+            /**
+             * Enable the template hints
+             */
+            case 'hints:on' :
+            case 'h:on' :
+                echo shell_exec('bin/magento dev:template-hints:enable');
+                $this->cache->removeBasicCache();
+                break;
+
+
+            /**
+             * Disable the template hints
+             */
+            case 'hints:off' :
+            case 'h:off' :
+                echo shell_exec('bin/magento dev:template-hints:disable');
+                $this->cache->removeBasicCache();
                 break;
 
 
 
             /**
-             * OTHERS
+             * OTHER TOOLS
              **********************************************************************************************************/
 
             /**
              * List of Magento Cloud commands
              */
             case 'cloud' : case 'mc' :
-            $projectId = $this->storeInfo->getMagentoCloudProjectId();
-            if(empty($projectId)) {
+                $projectId = $this->storeInfo->getMagentoCloudProjectId();
+                if(empty($projectId)) {
+                    $output->writeln('');
+                    $output->writeln('<error>Your project is not set as a Magento Cloud project.
+    Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>
+    ');
+                    break;
+                }
+
+                echo shell_exec('magento-cloud');
+
                 $output->writeln('');
-                $output->writeln('<error>Your project is not set as a Magento Cloud project.
-Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/blob/master/README.md</error>
-');
+                $dialog = $this->getHelper('dialog');
+                $mcOptions = array(
+                    '<info>[General Info]</info> Project', // 0
+                    '<info>[General Info]</info> My Account', // 1
+                    '<info>[General Info]</info> All users', // 2
+                    '<info>[General Info]</info> All envs', // 3
+                    '<info>[Environment Info]</info> <question>[env name]</question> Env data', // 4
+                    '<info>[Environment Info]</info> <question>[env name]</question> Env URLs', // 5
+                    '<info>[Environment Info]</info> <question>[env name]</question> Env logs', // 6
+                    '<info>[Environment Info]</info> <question>[env name]</question> Env activity (last 10)', // 7
+                    '<info>[Branch Action]</info> <question>[branch name, parent branch]</question> Create', // 8
+                    '<info>[Branch Action]</info> <question>[branch name]</question> Push current (to server branch with the same name)', // 9
+                    '<info>[Branch Action]</info> <question>[branch name]</question> Activate remote branch/env', // 10
+                    '<info>[Other]</info> <question>[env name]</question> Download dump of env database', // 11
+                    '<info>[Other]</info> <question>[env name]</question> Get command to connect to env through SSH' // 12
+                );
+                $selected = $dialog->select(
+                    $output,
+                    '<title>Select an option for the current project (ID: '.$projectId.'):</title>',
+                    $mcOptions,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // enable multiselect
+                );
+
+                $requiredEnv = array(4,5,6,7,10,11,12);
+                if(in_array($selected, $requiredEnv)) {
+                    // Ask environment name
+                    $envName = $this->askQuestion(
+                        'Name of the env:',
+                        NULL,
+                        $input, $output
+                    );
+                    if(!$envName) {
+                        $output->writeln('<error>You must enter a name for the env</error>');
+                        break;
+                    }
+                }
+
+                $requireBranch = array(8);
+                if(in_array($selected, $requireBranch)) {
+                    // Ask name of new branch
+                    $branchName = $this->askQuestion(
+                        'Name of new branch:',
+                        NULL,
+                        $input, $output
+                    );
+                    if(!$branchName) {
+                        $output->writeln('<error>You must enter a name for the new branch</error>');
+                        break;
+                    }
+                }
+                if(in_array($selected, $requireBranch)) {
+                    // Ask name of parent branch
+                    $masterBranch = $this->askQuestion(
+                        'Name of the parent branch:',
+                        NULL,
+                        $input, $output
+                    );
+                    if(!$masterBranch) {
+                        $output->writeln('<error>You must enter a name for the parent branch</error>');
+                        break;
+                    }
+                }
+
+                switch($selected) :
+                    case 0 :
+                        // See project info
+                        echo shell_exec('magento-cloud project:info -p '.$projectId);
+                        break;
+                    case 1 :
+                        // See your account info
+                        echo shell_exec('magento-cloud auth:info');
+                        break;
+                    case 2 :
+                        // See all users
+                        echo shell_exec('magento-cloud user:list -p '.$projectId);
+                        break;
+                    case 3 :
+                        // See all envs
+                        echo shell_exec('magento-cloud environments -p '.$projectId);
+                        break;
+                    case 4 :
+                        // See env info
+                        echo shell_exec('magento-cloud environment:info -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 5 :
+                        // See envs URLs
+                        echo shell_exec('magento-cloud environment:url -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 6 :
+                        // See envs logs
+                        echo shell_exec('magento-cloud environment:logs -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 7 :
+                        // See envs activity
+                        echo shell_exec('magento-cloud activity:list -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 8 :
+                        // Create branch
+                        echo shell_exec('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
+                        break;
+                    case 9 :
+                        // Push current branch
+                        echo shell_exec('magento-cloud environment:push');
+                        break;
+                    case 10 :
+                        // Activate env
+                        echo shell_exec('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 11 :
+                        // Download env dump
+                        echo shell_exec('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
+                        break;
+                    case 12 :
+                        // Connect through SSH
+                        $command = 'ssh -p '.$projectId.' -e '.$envName;
+                        $output->writeln('');
+                        $output->writeln('Run: <info>magento-cloud '.$command.'</info>');
+                        $output->writeln('');
+                        break;
+                endswitch;
                 break;
-            }
-
-            echo shell_exec('magento-cloud');
-
-            $output->writeln('');
-            $dialog = $this->getHelper('dialog');
-            $mcOptions = array(
-                '<info>[General Info]</info> Project', // 0
-                '<info>[General Info]</info> My Account', // 1
-                '<info>[General Info]</info> All users', // 2
-                '<info>[General Info]</info> All envs', // 3
-                '<info>[Environment Info]</info> <question>[env name]</question> Env data', // 4
-                '<info>[Environment Info]</info> <question>[env name]</question> Env URLs', // 5
-                '<info>[Environment Info]</info> <question>[env name]</question> Env logs', // 6
-                '<info>[Environment Info]</info> <question>[env name]</question> Env activity (last 10)', // 7
-                '<info>[Branch Action]</info> <question>[branch name, parent branch]</question> Create', // 8
-                '<info>[Branch Action]</info> <question>[branch name]</question> Push current (to server branch with the same name)', // 9
-                '<info>[Branch Action]</info> <question>[branch name]</question> Activate remote branch/env', // 10
-                '<info>[Other]</info> <question>[env name]</question> Download dump of env database', // 11
-                '<info>[Other]</info> <question>[env name]</question> Get command to connect to env through SSH' // 12
-            );
-            $selected = $dialog->select(
-                $output,
-                '<title>Select an option for the current project (ID: '.$projectId.'):</title>',
-                $mcOptions,
-                0,
-                false,
-                'Value "%s" is invalid',
-                false // enable multiselect
-            );
-
-            $requiredEnv = array(4,5,6,7,10,11,12);
-            if(in_array($selected, $requiredEnv)) {
-                // Ask environment name
-                $envName = $this->askQuestion(
-                    'Name of the env:',
-                    NULL,
-                    $input, $output
-                );
-                if(!$envName) {
-                    $output->writeln('<error>You must enter a name for the env</error>');
-                    break;
-                }
-            }
-
-            $requireBranch = array(8);
-            if(in_array($selected, $requireBranch)) {
-                // Ask name of new branch
-                $branchName = $this->askQuestion(
-                    'Name of new branch:',
-                    NULL,
-                    $input, $output
-                );
-                if(!$branchName) {
-                    $output->writeln('<error>You must enter a name for the new branch</error>');
-                    break;
-                }
-            }
-            if(in_array($selected, $requireBranch)) {
-                // Ask name of parent branch
-                $masterBranch = $this->askQuestion(
-                    'Name of the parent branch:',
-                    NULL,
-                    $input, $output
-                );
-                if(!$masterBranch) {
-                    $output->writeln('<error>You must enter a name for the parent branch</error>');
-                    break;
-                }
-            }
-
-            switch($selected) :
-                case 0 :
-                    // See project info
-                    echo shell_exec('magento-cloud project:info -p '.$projectId);
-                    break;
-                case 1 :
-                    // See your account info
-                    echo shell_exec('magento-cloud auth:info');
-                    break;
-                case 2 :
-                    // See all users
-                    echo shell_exec('magento-cloud user:list -p '.$projectId);
-                    break;
-                case 3 :
-                    // See all envs
-                    echo shell_exec('magento-cloud environments -p '.$projectId);
-                    break;
-                case 4 :
-                    // See env info
-                    echo shell_exec('magento-cloud environment:info -p '.$projectId.' -e '.$envName);
-                    break;
-                case 5 :
-                    // See envs URLs
-                    echo shell_exec('magento-cloud environment:url -p '.$projectId.' -e '.$envName);
-                    break;
-                case 6 :
-                    // See envs logs
-                    echo shell_exec('magento-cloud environment:logs -p '.$projectId.' -e '.$envName);
-                    break;
-                case 7 :
-                    // See envs activity
-                    echo shell_exec('magento-cloud activity:list -p '.$projectId.' -e '.$envName);
-                    break;
-                case 8 :
-                    // Create branch
-                    echo shell_exec('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
-                    break;
-                case 9 :
-                    // Push current branch
-                    echo shell_exec('magento-cloud environment:push');
-                    break;
-                case 10 :
-                    // Activate env
-                    echo shell_exec('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
-                    break;
-                case 11 :
-                    // Download env dump
-                    echo shell_exec('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
-                    break;
-                case 12 :
-                    // Connect through SSH
-                    $command = 'ssh -p '.$projectId.' -e '.$envName;
-                    $output->writeln('');
-                    $output->writeln('Run: <info>magento-cloud '.$command.'</info>');
-                    $output->writeln('');
-                    break;
-            endswitch;
-            break;
 
 
             /**
@@ -1240,50 +1368,80 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
 
 
             /**
-             * Override template
-             * Examples:
-             * - vendor/magento/module-checkout/view/frontend/templates/cart.phtml
-             * @todo: copy the file automatically
+             * Regenerate URL rewrites
              */
-            case 'override:template' :
-            case 'o:template' : case 'override:t' :
-            case 'o:t' :
-                $dftTheme = $this->storeInfo->getDefaultTheme();
+            case 'tools:regenerate' :
+            case 'tools:r' : case 't:regenerate' :
+            case 't:r' :
+                set_time_limit(0);
+                $allStores = $this->storeInfo->getAllStoresToRegenerate();
+                $output->writeln('Regenerating of Url rewrites:');
 
-                // If multistore, ask for theme name
-                if($this->storeInfo->isMultistore() && $this->storeInfo->getAskIfMultistore()) {
-                    $theme = $this->askQuestion(
-                        'Name of the theme (Hit <comment>Enter</comment> to use <info>' . $dftTheme . '</info>):',
-                        $dftTheme,
-                        $input, $output
-                    );
-                } else {
-                    $theme = $dftTheme;
-                }
+                $storesNames = $this->storeInfo->getAllStoresNames();
+                array_unshift($storesNames, 'All');
 
-                // Ask for file to be overridden
-                $file = $this->askQuestion(
-                    'Path of the template to be overridden (example: <info>vendor/magento/module-checkout/view/frontend/templates/cart.phtml</info>):',
-                    NULL,
-                    $input, $output
+                $dialog = $this->getHelper('dialog');
+                $storeSelected = $dialog->select(
+                    $output,
+                    'Select a store (<comment>Enter</comment> to select <info>All</info>):',
+                    $storesNames,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // multiselect
                 );
-                if(!$file) {
-                    $output->writeln('<error>Please enter a path of the file to override</error>');
-                    break;
+                
+                if($storeSelected == '0') {
+                    $storesList = $allStores;
+                } elseif (strlen($storeSelected) && ctype_digit($storeSelected)) {
+                    if (isset($allStores[$storeSelected])) {
+                        $storesList = array(
+                            $storeSelected => $allStores[$storeSelected]
+                        );
+                    } else {
+                        $output->writeln('<error>[ERROR] Store with this ID not exists.</error>');
+                        return;
+                    }
+                } else {
+                    $output->writeln('<error>[ERROR] Store ID should have a integer value.</error>');
+                    return;
                 }
 
-                // Get path to override template
-                $fullPath = $this->create->overrideTemplate($file, $theme);
-
-                if(!$fullPath) {
-                    $output->writeln('<error>The template already exists within the '.$theme.' theme</error>');
-                    break;
+                // Remove all current URL rewrites, from url_rewrite and catalog_url_rewrite_product_category
+                if(count($storesList) > 0) {
+                    $this->regenerate->removeAllUrlRewrites($storesList);
                 }
 
-                $output->writeln('
-Template copied to <info>'.$fullPath.'</info>
-Remember to remove the Magento copyright from the top of the file.
-');
+                // Regenerate the URLs
+                foreach ($storesList as $storeId => $storeCode) {
+                    $output->writeln('');
+                    $output->write("[Store ID: {$storeId}, Store View code: {$storeCode}]:");
+
+                    // Get categories collection
+                    $this->regenerate->createCategory($storeId, $output);
+                }
+
+                $output->writeln('');
+                $output->writeln('Reindexation...');
+                shell_exec('bin/magento indexer:reindex');
+
+                $output->writeln('Cache refreshing...');
+                shell_exec('bin/magento cache:flush');
+                $output->writeln('The reindexation finished successfully.');
+                break;
+
+
+            /**
+             * Set write permissions
+             */
+            case 'tools:permissions' :
+            case 'tools:p' : case 't:permissions' :
+            case 't:p' :
+                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait');
+                shell_exec('sudo find . -type f -exec chmod 660 {} ";" && sudo find . -type d -exec chmod 770 {} ";"');
+                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
+                shell_exec('chmod u+x bin/magento');
+                $output->writeln('Proper permissions given to all <info>M2</info> files and folders');
                 break;
 
 
@@ -1308,6 +1466,7 @@ Remember to remove the Magento copyright from the top of the file.
                     'Value "%s" is invalid',
                     false // multiselect
                 );
+
                 switch($selected) :
                     case 0 :
                         // Show current mode
@@ -1323,30 +1482,6 @@ Remember to remove the Magento copyright from the top of the file.
                         break;
                 endswitch;
                 break;
-
-
-            /**
-             * Enable the template hints
-             */
-            case 'hints:on' :
-            case 'h:on' :
-                echo shell_exec('bin/magento dev:template-hints:enable');
-                $this->cache->removeBasicCache();
-                break;
-
-
-            /**
-             * Disable the template hints
-             */
-            case 'hints:off' :
-            case 'h:off' :
-                echo shell_exec('bin/magento dev:template-hints:disable');
-                $this->cache->removeBasicCache();
-                break;
-
-
-
-
 
 
 

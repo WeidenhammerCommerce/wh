@@ -1,4 +1,16 @@
 <?php
+/**
+ * Create dummy content
+ * - Categories
+ * - Products
+ * - Customers
+ *
+ * @package Hammer_WH
+ * @author Sebastian De Cicco <seb.decc@gmail.com>
+ * @copyright 2018 Sebastian De Cicco
+ * @license OSL-3.0, AFL-3.0
+ */
+
 namespace Hammer\WH\Block;
 
 use Magento\Catalog\Model\Product\Attribute\Source\Status;

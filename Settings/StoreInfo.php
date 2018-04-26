@@ -158,6 +158,11 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/dummy_products');
     }
 
+    public function getViewProduct()
+    {
+        return $this->deploymentConfig->get('wh/view_product_link');
+    }
+
     public function getAskIfMultistore()
     {
         return $this->deploymentConfig->get('wh/ask_if_multistore');
@@ -179,6 +184,57 @@ class StoreInfo
     public function getAllStores()
     {
         return $this->storeRepository->getList();
+    }
+
+    public function getAllStoresIds()
+    {
+        $stores = $this->storeRepository->getList();
+        $storesIds = array();
+
+        if(count($stores) > 1) {
+            foreach ($stores as $store) {
+                if($store->getName() == 'Admin') {
+                    continue;
+                }
+                $storesIds[] = $store->getId();
+            }
+        }
+
+        return $storesIds;
+    }
+
+    public function getAllStoresNames()
+    {
+        $stores = $this->storeRepository->getList();
+        $storesNames = array();
+
+        if(count($stores) > 1) {
+            foreach ($stores as $store) {
+                if($store->getName() == 'Admin') {
+                    continue;
+                }
+                $storesNames[] = $store->getName();
+            }
+        }
+
+        return $storesNames;
+    }
+
+    public function getAllStoresToRegenerate()
+    {
+        $stores = $this->storeRepository->getList();
+        $storesToReturn = array();
+
+        if(count($stores) > 1) {
+            foreach ($stores as $store) {
+                if($store->getName() == 'Admin') {
+                    continue;
+                }
+                $storesToReturn[(int)$store->getId()] = $store->getCode();
+            }
+        }
+
+        return $storesToReturn;
     }
 
     public function isMultistore()

@@ -1,9 +1,13 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command with a handful of M2 tools
 
+## v.0.1.1
+
+- Added the {tools:regenerate} command
+
 ## v.0.1.0
 
-- Added options to the create:module command
+- Added several options to the {create:module} command
 ```
 [1] Extend Block/Model class
 [2] Create Plugin for a method
@@ -18,12 +22,12 @@
 
 ## v.0.0.7
 
-- Added cloud command
+- Added the {cloud} command
 
 ## v.0.0.6
 
 - Started using the env.php file to stored user variables
-- Added create:dump
+- Added the {create:dump} command
 - Added shell commands (permissions, static)
 
 ## :eye: Installation

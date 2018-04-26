@@ -1,13 +1,15 @@
 .product-view-url {
-    background: #CCFFBB;
+    background: #f8f8f8;
     border: none;
     border-radius: 0;
-    color: #333333;
+    color: #333;
     font-size: 1.4rem;
     margin: 0 0 20px;
     padding: 1.8rem 4rem 1.8rem 5rem;
     position: relative;
     text-shadow: none;
+    border-top: 1px solid #e3e3e3;
+    border-bottom: 1px solid #e3e3e3;
 }
 
 .product-view-url:before {

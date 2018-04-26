@@ -1,12 +1,14 @@
 <?php
 /**
- * Show a "View Product" link at the top of the
+ * Show a 'View Product' link at the top of the
  * Admin > Products > Catalog > [Product] page
  *
- * @var $block \Hammer\WH\Block\ViewProduct
+ * @package Hammer_WH
+ * @author Sebastian De Cicco <seb.decc@gmail.com>
+ * @copyright 2018 Sebastian De Cicco
+ * @license OSL-3.0, AFL-3.0
  */
-?>
-<?php
+
 $_product = $block->getCurrentProduct();
 $_id = $_product->getId();
 
@@ -16,7 +18,7 @@ $_seoUrl =  $_baseUrl.$_product->getUrlKey().'.html';
 $_m2BaseUrl = $_baseUrl.'catalog/product/view/id/'.$_id;
 $_viewProduct = !empty($_product->getUrlKey()) ? $_seoUrl : $_m2BaseUrl;
 ?>
-<?php if($_id): ?>
+<?php if($block->getViewProduct() && $_id): ?>
     <div class="product-view-url">
         <a href="<?php echo $_viewProduct; ?>" target="_blank">View Product</a>
     </div>
