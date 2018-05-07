@@ -540,7 +540,7 @@ EOF
                         $feature['class'] = $className;
 
                         $methodName = $this->askQuestion(
-                            'Method to extend (example: <comment>formatCurrency</comment>):',
+                            'Public method to extend (example: <comment>formatCurrency</comment>):',
                             NULL,
                             $input, $output
                         );
@@ -936,13 +936,33 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
             case 'a:create' : case 'admin:cr' :
             case 'a:cr' :
                 // Ask for admin user data
+                $firstname = $this->askQuestion(
+                    'First Name:',
+                    NULL,
+                    $input, $output
+                );
+                if(!$firstname) {
+                    $output->writeln('<error>You must enter a First Name for the new admin user</error>');
+                    break;
+                }
+
+                $lastname = $this->askQuestion(
+                    'Last Name:',
+                    NULL,
+                    $input, $output
+                );
+                if(!$lastname) {
+                    $output->writeln('<error>You must enter a Last Name for the new admin user</error>');
+                    break;
+                }
+
                 $email = $this->askQuestion(
                     'Email:',
                     NULL,
                     $input, $output
                 );
                 if(!$email) {
-                    $output->writeln('<error>You must enter an email for the new admin user</error>');
+                    $output->writeln('<error>You must enter an Email for the new admin user</error>');
                     break;
                 }
 
@@ -952,7 +972,7 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
                     $input, $output
                 );
                 if(!$username) {
-                    $output->writeln('<error>You must enter a username for the new admin user</error>');
+                    $output->writeln('<error>You must enter a Username for the new admin user</error>');
                     break;
                 }
 
@@ -962,32 +982,19 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
                     $input, $output
                 );
                 if(!$password) {
-                    $output->writeln('<error>You must enter a password for the new admin user</error>');
+                    $output->writeln('<error>You must enter a Password for the new admin user</error>');
                     break;
                 }
+                
+                $command = $this->storeInfo->getBinMagento();
+                $command .= ' admin:user:create';
+                $command .= ' --admin-user="'.$username.'"';
+                $command .= ' --admin-password="'.$password.'"';
+                $command .= ' --admin-email="'.$email.'"';
+                $command .= ' --admin-firstname="'.$firstname.'"';
+                $command .= ' --admin-lastname="'.$lastname.'"';
 
-                $adminInfo = [
-                    'username'  => $username,
-                    'firstname' => $username,
-                    'lastname'    => $username,
-                    'email'     => $email,
-                    'password'  => $password,
-                    'interface_locale' => 'en_US',
-                    'is_active' => 1
-                ];
-
-                $userModel = $this->userFactory->create();
-                $userModel->setData($adminInfo);
-                $userModel->setRoleId(1);
-
-                $userModel->save();
-                $output->writeln('The admin user <info>'.$username.'</info> was created successfully with the <info>'.$email.'</info> email.');
-
-                /*try{
-                    $userModel->save();
-                } catch (\Exception $ex) {
-                    $ex->getMessage();
-                }*/
+                echo shell_exec($command);
                 break;
 
 
