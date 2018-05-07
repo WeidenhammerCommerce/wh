@@ -168,6 +168,11 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/ask_if_multistore');
     }
 
+    public function getSaveDatabaseFolder()
+    {
+        return $this->deploymentConfig->get('wh/save_db_folder');
+    }
+
     public function getMagentoCloud()
     {
         return $this->deploymentConfig->get('wh/magento_cloud');
@@ -176,6 +181,11 @@ class StoreInfo
     public function getMagentoCloudProjectId()
     {
         return $this->deploymentConfig->get('wh/magento_cloud_project_id');
+    }
+
+    public function getBinMagento()
+    {
+        return $this->deploymentConfig->get('wh/magento_command');
     }
 
 

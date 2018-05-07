@@ -1,5 +1,5 @@
 ## ¯\ \_(ツ)_/¯
-## WH creates a new shell command with a handful of M2 tools
+## WH creates a new shell command {wh} with a handful of M2 tools
 
 ## v.0.1.1
 
@@ -7,18 +7,7 @@
 
 ## v.0.1.0
 
-- Added several options to the {create:module} command
-```
-[1] Extend Block/Model class
-[2] Create Plugin for a method
-[3] Create frontend page to display template
-[4] Create frontend page to display template using view-model
-[5] Create frontend page to return JSON
-[6] Attach Observer to Event
-[7] Replace constructor argument
-[8] Create new Command line
-[9] Create REST API with ACL
-```
+- Refactored code and added several options to the {create:module} command
 
 ## v.0.0.7
 
@@ -28,7 +17,6 @@
 
 - Started using the env.php file to stored user variables
 - Added the {create:dump} command
-- Added shell commands (permissions, static)
 
 ## :eye: Installation
 
@@ -50,8 +38,10 @@ $ composer require hammer/wh:dev-master
       'dummy_products' => 1, // default qty of dummy products
       'view_product_link' => 1, // 1 or 0, 1 shows 'View Product' link on Admin
       'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
+      'save_db_folder' => 'var/dump', // folder to save the database dump 
       'magento_cloud' => 0, // 1 or 0, 1 if using Magento Cloud	
-      'magento_cloud_project_id' => '' // magento cloud project ID,  if any
+      'magento_cloud_project_id' => '', // magento cloud project ID, if any
+      'magento_command' => 'bin/magento' // magento command line
   )  
 ```
 Notes for faster development
@@ -88,6 +78,12 @@ Note: remember to always develop in *Developer* mode
 
 ```
 $ bin/magento wh --help
+```
+
+### Show full list to select an option with
+
+```
+$ bin/magento wh options (alias op)
 ```
 
 ### Show information of your Magento instance (Edition, Version, Mode, Session, Crypt Key and Install Date)
@@ -165,7 +161,7 @@ $ bin/magento wh create:module (alias cr:m)
 
 ### Create new theme
 * (string) Name of the theme
-* (int) Theme to extend from (blank, Luma or custom)
+* (int) Theme to extend from: blank, Luma (beta) or custom
 ```
 $ bin/magento wh create:theme (alias cr:t)
 ```
@@ -177,10 +173,6 @@ $ bin/magento wh create:theme (alias cr:t)
 $ bin/magento wh create:dummy (alias cr:d)
 ```
 
-### Creates dump of the database in the var/dump folder
-```
-$ bin/magento wh create:dump (alias cr:dump)
-```
 
 
 ## :eye: CUSTOMER commands
@@ -194,7 +186,7 @@ $ bin/magento wh create:dump (alias cr:dump)
 $ bin/magento wh customer:create (alias c:cr)
 ```
 
-### Update the password of an existing customer
+### Update password of existing customer
 * (string) Email of existing customer (autocomplete)
 * (string) New password
 ```
@@ -213,7 +205,7 @@ $ bin/magento wh customer:password (alias c:p)
 $ bin/magento wh customer:create (alias a:cr)
 ```
 
-### Update the password of an existing admin user
+### Update password of existing admin user
 * (string) Email of existing admin user (autocomplete)
 * (string) New password
 ```
@@ -230,7 +222,7 @@ $ bin/magento wh customer:password (alias a:p)
 $ bin/magento wh tools:static (alias t:s)
 ```
 
-### Copy template from the core to your theme, in order to override it
+### Copy core template to theme to override it
 * (string) Name of the theme
 * (string) Path to the existing template (example: vendor/magento/module-checkout/view/frontend/templates/cart.phtml)
 ```
@@ -253,30 +245,34 @@ $ bin/magento wh hints:off (alias h:off)
 
 ### List of Magento Cloud commands
 ```
-$ bin/magento wh cloud (alias mc)
+$ bin/magento wh cloud
 Select a Magento Cloud command for the project:
-  [0 ] [General Info] Project
-  [1 ] [General Info] My Account
-  [2 ] [General Info] All users
-  [3 ] [General Info] All envs
-  [4 ] [Environment Info] [env name] Env data
-  [5 ] [Environment Info] [env name] Env URLs
-  [6 ] [Environment Info] [env name] Env logs
-  [7 ] [Environment Info] [env name] Env activity (last 10)
-  [8 ] [Branch Action] [branch name, parent branch] Create
-  [9 ] [Branch Action] [branch name] Push current (to server branch with the same name)
-  [10] [Branch Action] [branch name] Activate remote branch/env
-  [11] [Other] [env name] Download dump of env database
-  [12] [Other] [env name] Get command to connect to env through SSH
+  [0 ] See project info
+  [1 ] See your account info
+  [2 ] See all users
+  [3 ] See all envs
+  [4 ] See env info
+  [5 ] See env URLs
+  [6 ] See env logs
+  [7 ] See env activity (last 10)
+  [8 ] Create branch
+  [9 ] Activate env
+  [10] Download dump of env database
+  [11] Get command to connect to env through SSH
 ```
 
-### Downgrades the version of the database module to the one on the code
+### Creates dump of the database in given folder
+```
+$ bin/magento wh dump
+```
+
+### Downgrades version of the database module to the one on the code
 * (string) Name of the existing module
 ```
 $ bin/magento wh module:downgrade (alias m:d)
 ```
 
-### Regenerate a URL rewrites of products/categories in all/specific store/s
+### Regenerate URL rewrites of products/categories in all/specific store/s
 * (multiselect) Store
 ```
 $ bin/magento wh tools:regenerate (alias t:r)
@@ -288,9 +284,15 @@ $ bin/magento wh tools:permissions (alias t:p)
 ```
 
 ### Deploy to given mode
-* (multistore) Name of the mode (show, developer or production)
+* (select) Name of the mode (show, developer or production)
 ```
 $ bin/magento wh deploy:mode (alias d:m)
+```
+
+### Show M2 snippets
+* (select) Snippet to show
+```
+$ bin/magento wh snippets (alias sn)
 ```
 
 

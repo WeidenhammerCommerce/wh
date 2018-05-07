@@ -128,27 +128,28 @@ $ %command.full_name% <info>clean:all (c:a)</info> Removes all cache (everything
 $ %command.full_name% <info>clean:custom (c:c)</info> Removes selected cache (separated by comma)
 $ %command.full_name% <info>clean:admin (c:ad)</info> Removes the specific cache to regenerate the admin
 <comment>Creation</comment>
-$ %command.full_name% <info>create:module (cr:m)</info> <question>[name, install file and class file to extend]</question> Creates a new module
-$ %command.full_name% <info>create:theme (cr:t)</info> <question>[name and where to extend from]</question> Creates a new theme
-$ %command.full_name% <info>create:dummy (cr:d)</info> <question>[qty of categories and products]</question> Creates dummy categories and products
-$ %command.full_name% <info>create:dump (cr:dump)</info> Creates dump of the database in the var/dump folder 
+$ %command.full_name% <info>create:module (cr:m)</info> <question>[module options]</question> Creates a new module
+$ %command.full_name% <info>create:theme (cr:t)</info> <question>[theme options]</question> Creates a new theme
+$ %command.full_name% <info>create:dummy (cr:d)</info> <question>[quantities]</question> Creates dummy categories and products
 <comment>Customer</comment>
-$ %command.full_name% <info>customer:create (c:cr)</info> <question>[data of customer]</question> Creates a customer
+$ %command.full_name% <info>customer:create (c:cr)</info> <question>[customer data]</question> Creates a customer
 $ %command.full_name% <info>customer:password (c:p)</info> <question>[email and new password]</question> Updates the password of an existing customer
 <comment>Admin</comment>
-$ %command.full_name% <info>admin:create (a:cr)</info> <question>[email, username and password]</question> Creates an admin user
+$ %command.full_name% <info>admin:create (a:cr)</info> <question>[user data]</question> Creates an admin user
 $ %command.full_name% <info>admin:password (a:p)</info> <question>[email and new password]</question> Updates the password of an existing admin user
 <comment>Frontend Tools</comment>
-$ %command.full_name% <info>tools:static (t:s)</info> <question>[name of theme]</question> Deploy static content for given theme
-$ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Returns the path to your theme in order to override a core template
+$ %command.full_name% <info>tools:static (t:s)</info> <question>[name of theme]</question> Deploy static content
+$ %command.full_name% <info>override:template (o:t)</info> <question>[name of theme, path to template]</question> Copy core template to theme to override it
 $ %command.full_name% <info>hints:on (h:on)</info> Enables the Template Hints
 $ %command.full_name% <info>hints:off (h:off)</info> Disables the Template Hints
 <comment>Other Tools</comment>
-$ %command.full_name% <info>cloud (mc)</info> List of Magento Cloud commands
-$ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades the version of the database module to the one on the code (useful after changing branches)
-$ %command.full_name% <info>tools:regenerate (t:r)</info> <question>[store]</question> Regenerate a URL rewrites of products/categories in all/specific store/s
+$ %command.full_name% <info>cloud</info> List of Magento Cloud commands
+$ %command.full_name% <info>dump</info> Creates dump of the database
+$ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades version of the database module to the one on the code (useful after changing branches)
+$ %command.full_name% <info>tools:regenerate (t:r)</info> <question>[store]</question> Regenerate URL rewrites of products/categories in all/specific store/s
 $ %command.full_name% <info>tools:permissions (t:p)</info> Set proper permissions to all files and folders
 $ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (show, developer or production) 
+$ %command.full_name% <info>snippets (sn)</info> <question>[snippet]</question> Show M2 snippets
 
 EOF
             );
@@ -195,7 +196,6 @@ EOF
                 break;
 
 
-
             /**
              * Shows information of all of the Stores
              */
@@ -221,7 +221,6 @@ EOF
                 }
                 $output->writeln('');
                 break;
-
 
 
             /**
@@ -488,7 +487,7 @@ EOF
                     'Extend Block/Model class', // 1
                     'Create Plugin for a method', // 2
                     'Create frontend page to display template', // 3
-                    'Create frontend page to display template using view-model', // 4
+                    'Create frontend page to display template using view_model', // 4
                     'Create frontend page to return JSON', // 5
                     'Attach Observer to Event', // 6
                     'Replace constructor argument', // 7
@@ -704,13 +703,24 @@ EOF
 
                 // Create module
                 if($this->create->createModule($moduleName, $selectedSetupFiles, $feature)) {
-                    $output->writeln('');
-                    $output->writeln('The module <info>' . $moduleName . '</info> was created successfully.
-Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName.'</info> to enable it');
-                    $output->writeln('');
 
-                    // echo shell_exec('bin/magento module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+                    // Enable it?
+                    $enableOption = $this->askQuestion(
+                        'Do you want to enable the module? (<comment>y/n</comment>; <comment>Enter</comment> to skip):',
+                        'n',
+                        $input, $output
+                    );
+                    if(strtolower($enableOption) == 'y') {
+                        echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+                        echo shell_exec($this->storeInfo->getBinMagento().' s:up');
+                    }
 
+                    $output->writeln('');
+                    $output->writeln('The module <info>' . $moduleName . '</info> was created successfully.');
+                    if(strtolower($enableOption) !== 'y') {
+                        $output->writeln('Remember to run <info>'.$this->storeInfo->getBinMagento().' module:enable ' . $this->storeInfo->getCompanyName() . '_' . $moduleName . '</info> to enable it');
+                    }
+                    $output->writeln('');
                 } else {
                     $output->writeln('<error>There was an error creating the new module</error>');
                 }
@@ -803,44 +813,7 @@ Remember to run <info>bin/magento module:enable '.$this->storeInfo->getCompanyNa
                 $this->dummy->createDummyContent($categoriesQty, $productsQty);
                 $output->writeln('The <info>dummy content</info> was created successfully.
 <info>'.$categoriesQty.'</info> categories and <info>'.$productsQty.'</info> products on every category.
-Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
-                break;
-
-
-            /**
-             * Create dump of the database
-             */
-            case 'create:dump' :
-            case 'cr:dump' :
-                $output->writeln('Starting the DB backup, please wait');
-
-                $dbInfo = $this->deploymentConfig->get('db')['connection']['default'];
-
-                $today = getdate();
-                $user = $dbInfo['username'];
-                $host = $dbInfo['host'];
-                $pass = $dbInfo['password'];
-                $dbname = $dbInfo['dbname'];
-
-                $filename = $dbname . '-' .
-                    $today['mon'] . '-' .
-                    $today['mday'] . '-' .
-                    $today['hours'] . '-' .
-                    $today['minutes'] .
-                    '.sql';
-
-                $backupsDir = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/backups';
-
-                if (!$this->file->isExists($backupsDir)) {
-                    $this->file->createDirectory($backupsDir);
-                }
-
-                $destination = $backupsDir . '/' . $filename;
-                $commmand = 'mysqldump -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname . ' >>' . $destination;
-
-                shell_exec($commmand);
-
-                $output->writeln('Dump saved in <info>'.$destination.'</info>');
+Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:reindex</info>).');
                 break;
 
 
@@ -1099,7 +1072,7 @@ Don\'t forget to reindex (<info>bin/magento indexer:reindex</info>).');
                 $forceOption = strtolower($forceOption) == 'y' ? ' -f' : '';
 
                 $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
-                echo shell_exec('bin/magento setup:static-content:deploy --area frontend --theme '.$theme . $forceOption);
+                echo shell_exec($this->storeInfo->getBinMagento().' setup:static-content:deploy --area frontend --theme '.$theme . $forceOption);
                 break;
 
             /**
@@ -1155,7 +1128,7 @@ Remember to remove the Magento copyright from the top of the file.
              */
             case 'hints:on' :
             case 'h:on' :
-                echo shell_exec('bin/magento dev:template-hints:enable');
+                echo shell_exec($this->storeInfo->getBinMagento().' dev:template-hints:enable');
                 $this->cache->removeBasicCache();
                 break;
 
@@ -1165,7 +1138,7 @@ Remember to remove the Magento copyright from the top of the file.
              */
             case 'hints:off' :
             case 'h:off' :
-                echo shell_exec('bin/magento dev:template-hints:disable');
+                echo shell_exec($this->storeInfo->getBinMagento().' dev:template-hints:disable');
                 $this->cache->removeBasicCache();
                 break;
 
@@ -1318,6 +1291,37 @@ Remember to remove the Magento copyright from the top of the file.
 
 
             /**
+             * Create dump of the database
+             */
+            case 'create:dump' :
+            case 'cr:dump' :
+            case 'dump' :
+                $output->writeln('Starting the DB backup into the <info>'.$this->storeInfo->getSaveDatabaseFolder().'</info> folder, please wait...');
+
+                $dbInfo = $this->deploymentConfig->get('db')['connection']['default'];
+
+                $user = $dbInfo['username'];
+                $host = $dbInfo['host'];
+                $pass = $dbInfo['password'];
+                $dbname = $dbInfo['dbname'];
+
+                $filename = $dbname.'_'.date('Y-m-d_H-i-s').'.sql';
+                $backupsDir = $this->storeInfo->getSaveDatabaseFolder();
+
+                if (!$this->file->isExists($backupsDir)) {
+                    $this->file->createDirectory($backupsDir);
+                }
+
+                $destination = $backupsDir . '/' . $filename;
+                $commmand = 'mysqldump -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname . ' >>' . $destination;
+
+                shell_exec($commmand);
+
+                $output->writeln('Dump saved in <info>'.$destination.'</info>');
+                break;
+
+
+            /**
              * Downgrade database module to its code version
              */
             case 'module:downgrade' :
@@ -1375,6 +1379,7 @@ Remember to remove the Magento copyright from the top of the file.
             case 't:r' :
                 set_time_limit(0);
                 $allStores = $this->storeInfo->getAllStoresToRegenerate();
+                $storesList = [];
                 $output->writeln('Regenerating of Url rewrites:');
 
                 $storesNames = $this->storeInfo->getAllStoresNames();
@@ -1423,10 +1428,10 @@ Remember to remove the Magento copyright from the top of the file.
 
                 $output->writeln('');
                 $output->writeln('Reindexation...');
-                shell_exec('bin/magento indexer:reindex');
+                shell_exec($this->storeInfo->getBinMagento().' indexer:reindex');
 
                 $output->writeln('Cache refreshing...');
-                shell_exec('bin/magento cache:flush');
+                shell_exec($this->storeInfo->getBinMagento().' cache:flush');
                 $output->writeln('The reindexation finished successfully.');
                 break;
 
@@ -1437,7 +1442,7 @@ Remember to remove the Magento copyright from the top of the file.
             case 'tools:permissions' :
             case 'tools:p' : case 't:permissions' :
             case 't:p' :
-                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait');
+                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait...');
                 shell_exec('sudo find . -type f -exec chmod 660 {} ";" && sudo find . -type d -exec chmod 770 {} ";"');
                 shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
                 shell_exec('chmod u+x bin/magento');
@@ -1470,18 +1475,309 @@ Remember to remove the Magento copyright from the top of the file.
                 switch($selected) :
                     case 0 :
                         // Show current mode
-                        echo shell_exec('bin/magento deploy:mode:show');
+                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:show');
                         break;
                     case 1 :
                         // Set to Developer
-                        echo shell_exec('bin/magento deploy:mode:set developer');
+                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:set developer');
                         break;
                     case 2 :
                         // Set to Production
-                        echo shell_exec('bin/magento deploy:mode:set production');
+                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:set production');
                         break;
                 endswitch;
                 break;
+
+
+            /**
+             * Show M2 snippets
+             */
+            case 'snippets' : case 'sn' :
+                $dialog = $this->getHelper('dialog');
+                $dMode = array(
+                    '<info>[Layout]</info> Call <comment>template</comment> without custom <comment>Block</comment>',
+                    '<info>[Layout]</info> Call <comment>template</comment> with custom <comment>Block</comment>',
+                    '<info>[Layout]</info> Call <comment>template</comment> with custom <comment>view_model</comment>',
+                    '<info>[Layout]</info> Change <comment>template</comment> of <comment>Block</comment>',
+                    '<info>[Layout]</info> Call <comment>CMS Block</comment>',
+                    '<info>[Layout]</info> Move <comment>Block</comment>',
+                    '<info>[Layout]</info> Remove <comment>Block</comment>',
+
+                    '<info>[Template]</info> Show <comment>theme\'s image</comment>',
+                    '<info>[Template]</info> Show <comment>store\'s link</comment>',
+                    '<info>[Template]</info> Show <comment>CMS Block</comment>',
+
+                    '<info>[CMS Page/Block]</info> Show <comment>Template</comment>',
+                    '<info>[CMS Page/Block]</info> Show <comment>CMS Block</comment>',
+                    '<info>[CMS Page/Block]</info> Show <comment>theme\'s image</comment>',
+                    '<info>[CMS Page/Block]</info> Show <comment>store\'s link</comment>',
+                    '<info>[CMS Page/Block]</info> Show <comment>store\'s information</comment>'
+                );
+                $selected = $dialog->select(
+                    $output,
+                    'Select a snippet:',
+                    $dMode,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // multiselect
+                );
+
+                $companyName = $this->storeInfo->getCompanyName();
+
+                $output->writeln('');
+                switch($selected) :
+                    case 0 :
+                        $output->writeln('<title>[Layout] Call template without custom Block</title>
+<referenceContainer name="some.container"> 
+    <block name="my.block.name"
+           before="-"
+           template="Magento_Theme::new-template.phtml"/> 
+</referenceContainer>');
+                        break;
+
+                    case 1 :
+                        $output->writeln('<title>[Layout] Call template with custom Block</title>
+<referenceContainer name="some.container"> 
+    <block class="'.$companyName.'\MyModule\Block\MyBlock"
+           name="my.block.name"
+           template="'.$companyName.'_MyModule::new-template.phtml"/> 
+</referenceContainer>');
+                        break;
+
+                    case 2 :
+                        $output->writeln('<title>[Layout] Call template with custom view_model</title>
+<referenceContainer name="content">
+    <block name="'.$companyName.'.mymodule.myfrontname"
+           template="'.$companyName.'_MyModule::mytemplate.phtml">
+        <arguments>
+            <argument name="view_model" xsi:type="object">
+                '.$companyName.'\MyModule\Block\Index
+            </argument>
+        </arguments>
+    </block>
+</referenceContainer>');
+                        break;
+
+                    case 3 :
+                        $output->writeln('<title>[Layout] Change template</title>
+<referenceBlock name="some.block">
+    <arguments>
+        <argument name="template" xsi:type="string">Magento_Theme::new-template.phtml</argument>
+    </arguments>
+</referenceBlock>');
+                        break;
+
+                    case 4 :
+                        $output->writeln('<title>[Layout] Call CMS Block</title>
+<referenceContainer name="some.container"> 
+    <block class="Magento\Cms\Block\Block" name="my.block.name" before="-">
+        <arguments>
+            <argument name="block_id" xsi:type="string">block_identifier</argument>
+        </arguments>
+    </block>
+</referenceContainer>');
+                        break;
+
+                    case 5 :
+                        $output->writeln('<title>[Layout] Move Block</title>
+<move element="some.block" destination="some.other.block" before="-"/>');
+                        break;
+
+                    case 6 :
+                        $output->writeln('<title>[Layout] Remove Block</title>
+<referenceBlock name="some.block" remove="true"/>');
+                        break;
+
+                    case 7 :
+                        $output->writeln('<title>[Template] Show theme\'s image</title>
+<?php echo $block->getViewFileUrl(\'images/some_image.jpg\'); ?>');
+                        break;
+
+                    case 8 :
+                        $output->writeln('<title>[Template] Show link</title>
+<?php echo $block->getUrl(\'checkout/cart\', [\'_secure\' => true]); ?>');
+                        break;
+
+                    case 9 :
+                        $output->writeln('<title>[Template] Show CMS Block</title>
+<?php echo $block->getLayout()->createBlock(\'Magento\Cms\Block\Block\')->setBlockId(\'block_identifier\')->toHtml(); ?>');
+                        break;
+
+                    case 10 :
+                        $output->writeln('<title>[CMS Page/Block] Show Template</title>
+{{block class="'.$companyName.'\MyModule\Block\MyBlock" template="'.$companyName.'_MyModule::template.phtml"}}');
+                        break;
+
+                    case 11 :
+                        $output->writeln('<title>[CMS Page/Block] Show CMS Block</title>
+{{block class="Magento\\Cms\\Block\\Block" block_id="block_identifier"}}');
+                        break;
+
+                    case 12 :
+                        $output->writeln('<title>[CMS Page/Block] Show theme\'s image</title>
+{{view url=\'images/some_image.jpg\'}}');
+                        break;
+
+                    case 13 :
+                        $output->writeln('<title>[CMS Page/Block] Show store\'s link</title>
+{{store url="checkout/cart"}}');
+                        break;
+
+                    case 14 :
+                        $output->writeln('<title>[CMS Page/Block] Show store\'s information</title>
+{{config path=\'general/store_information/phone\'}}');
+                        break;
+                endswitch;
+                $output->writeln('');
+                break;
+
+
+            /**
+             * Dialog box with all of the WH options
+             */
+            case 'options' : case 'op' :
+                $output->writeln('');
+                $dialog = $this->getHelper('dialog');
+                $whOptions = array(
+                    '<info>[Info]</info> About the M2 instance <comment>[i:m2]</comment>', // 0
+                    '<info>[Info]</info> About of all of the stores <comment>[i:s]</comment>', // 1
+                    '<info>[Info]</info> List modules (with its code version) <comment>[i:m]</comment>', // 2
+
+                    '<info>[Cache]</info> Remove to regenerate the templates <comment>[c:t]</comment>', // 3
+                    '<info>[Cache]</info> Remove to regenerate the layouts <comment>[c:t]</comment>', // 4
+                    '<info>[Cache]</info> Remove regenerate the CSS styles <comment>[c:s]</comment>', // 5
+                    '<info>[Cache]</info> Remove all (everything within /var and /pub/static) <comment>[c:a]</comment>', // 6
+                    '<info>[Cache]</info> Remove selected (one or more, separated by comma) <comment>[c:c]</comment>', // 7
+                    '<info>[Cache]</info> Remove regenerate the admin <comment>[c:ad]</comment>', // 8
+
+                    '<info>[Creation]</info> New module <comment>[cr:m]</comment>', // 9
+                    '<info>[Creation]</info> New theme <comment>[cr:t]</comment>', // 10
+                    '<info>[Creation]</info> Dummy categories/products <comment>[cr:d]</comment>', // 11
+
+                    '<info>[Customer]</info> Create <comment>[c:cr]</comment>', // 12
+                    '<info>[Customer]</info> Update password <comment>[c:p]</comment>', // 13
+
+                    '<info>[Admin]</info> Create user <comment>[a:cr]</comment>', // 14
+                    '<info>[Admin]</info> Update password <comment>[a:p]</comment>', // 15
+
+                    '<info>[Frontend]</info> Deploy static content <comment>[t:s]</comment>', // 16
+                    '<info>[Frontend]</info> Copy core template to theme to override it <comment>[o:t]</comment>', // 17
+                    '<info>[Frontend]</info> Enable the Template Hints <comment>[h:on]</comment>', // 18
+                    '<info>[Frontend]</info> Disable the Template Hints <comment>[h:off]</comment>', // 19
+
+                    '<info>[Tools]</info> List of Magento Cloud commands <comment>[cloud]</comment>', // 20
+                    '<info>[Tools]</info> Dump of database in '.$this->storeInfo->getSaveDatabaseFolder().' folder <comment>[dump]</comment>', // 21
+                    '<info>[Tools]</info> Downgrades version of the database module to the one on the code <comment>[m:d]</comment>', // 22
+                    '<info>[Tools]</info> Regenerate URL rewrites of products/categories in all/specific store/s <comment>[t:r]</comment>', // 23
+                    '<info>[Tools]</info> Set proper permissions to all files and folders <comment>[t:p]</comment>', // 24
+                    '<info>[Tools]</info> Deploy to given mode (show, developer or production) <comment>[d:m]</comment>', // 25
+                    '<info>[Tools]</info> Show snippets <comment>[sn]</comment>' // 26
+                );
+                $selected = $dialog->select(
+                    $output,
+                    '<title>Select an option:</title>',
+                    $whOptions,
+                    0,
+                    false,
+                    'Value "%s" is invalid',
+                    false // enable multiselect
+                );
+                $output->writeln('');
+
+                switch ($selected) :
+                    case 0 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:m2');
+                        break;
+                    case 1 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:s');
+                        break;
+                    case 2 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:m');
+                        break;
+
+                    case 3 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:t');
+                        break;
+                    case 4 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:l');
+                        break;
+                    case 5 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:s');
+                        break;
+                    case 6 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:a');
+                        break;
+                    case 7 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:c');
+                        break;
+                    case 8 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:ad');
+                        break;
+
+                    case 9 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:m');
+                        break;
+                    case 10 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:t');
+                        break;
+                    case 11 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:d');
+                        break;
+
+                    case 12 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:cr');
+                        break;
+                    case 13 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:p');
+                        break;
+
+                    case 14 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh a:cr');
+                        break;
+                    case 15 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh a:p');
+                        break;
+
+                    case 16 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:s');
+                        break;
+                    case 17 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh o:t');
+                        break;
+                    case 18 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh h:on');
+                        break;
+                    case 19 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh h:off');
+                        break;
+
+                    case 20 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh cloud');
+                        break;
+                    case 21 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh dump');
+                        break;
+                    case 22 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh m:d');
+                        break;
+                    case 23 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:r');
+                        break;
+                    case 24 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:p');
+                        break;
+                    case 25 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh d:m');
+                        break;
+                    case 26 :
+                        echo shell_exec($this->storeInfo->getBinMagento().' wh sn');
+                        break;
+                endswitch;
+                $output->writeln('');
+                break;
+
+
 
 
 
@@ -1508,12 +1804,12 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
                 } else {
                     $output->writeln(
                         'The module <info>WH</info> is installed and working correctly.
-- Your company name is <info>'.$companyName.'</info>
-- Your default theme name is <info>'.$defaultTheme.'</info>                    
-Check all the available actions with <info>bin/magento '.self::COMMAND.' --help</info>');
+- Your company name is <info>' . $companyName . '</info>
+- Your default theme name is <info>' . $defaultTheme . '</info>');
+                    $output->writeln('');
+                    $output->writeln('Check all the available actions with <info>' . $this->storeInfo->getBinMagento() . ' ' . self::COMMAND . ' --help</info>');
+                    $output->writeln('Show full list to select an option with <info>' . $this->storeInfo->getBinMagento() . ' ' . self::COMMAND . ' options (op)</info>');
                 }
-
-                $output->writeln('');
         endswitch;
     }
 

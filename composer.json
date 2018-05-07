@@ -1,8 +1,8 @@
 {
     "name": "hammer/wh",
-    "description": "WH creates a new shell command {wh} with a handful of M2 tools",
+    "description": "It creates a new shell command with a handful of M2 tools",
     "type": "magento2-module",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "license": "MIT",
     "authors": [
         {
@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0"
+        "php": "~5.6.0|~7.0.0|~7.1.0"
     },
     "autoload": {
         "files": [ "registration.php" ],
