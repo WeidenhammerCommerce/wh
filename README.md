@@ -153,7 +153,16 @@ $ bin/magento wh cache:admin (alias c:ad)
 ### Create new module
 * (string) Name of the module
 * (multiselect) Setup files (example: 1,3 to create InstallData.php and InstallSchema.php)
-* (select) Feature (example: 2 to create a plugin)
+* (select) Feature
+  - Extend Block/Model class
+  - Create Plugin for a method
+  - Create frontend page to display template
+  - Create frontend page to display template using view_model
+  - Create frontend page to return JSON
+  - Attach Observer to Event
+  - Replace constructor argument
+  - Create new Command line
+  - Create REST API with ACL
 * (other options) Based on the Feature selected
 ```
 $ bin/magento wh create:module (alias cr:m)
