@@ -711,7 +711,12 @@ EOF
                         $input, $output
                     );
                     if(strtolower($enableOption) == 'y') {
-                        echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+                        if(!$this->storeInfo->getMagentoCloud()) {
+                            echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+                        } else {
+                            // If Cloud, use composer
+                            echo shell_exec('composer require '.strtolower($this->storeInfo->getCompanyName()).'/'.strtolower($moduleName));
+                        }
                         echo shell_exec($this->storeInfo->getBinMagento().' s:up');
                     }
 
@@ -1294,6 +1299,22 @@ Remember to remove the Magento copyright from the top of the file.
                         $output->writeln('');
                         break;
                 endswitch;
+                break;
+
+
+            /**
+             * List of Magento Cloud commands
+             */
+            case 'cloud-db' :
+                $output->writeln('Connecting to Cloud database...');
+
+                $dbInfo = $this->deploymentConfig->get('db')['connection']['default'];
+                $user = $dbInfo['username'];
+                $host = $dbInfo['host'];
+                $pass = $dbInfo['password'];
+                $dbname = $dbInfo['dbname'];
+
+                shell_exec('mysql -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname);
                 break;
 
 

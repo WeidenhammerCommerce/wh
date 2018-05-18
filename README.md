@@ -30,7 +30,7 @@ $ composer require hammer/wh:dev-master
   array (
       'company_name' => 'CompanyName', // required, where you place your modules (app/code/[CompanyName])
       'default_theme' => 'CompanyName/ThemeName', // required, theme you're currently working on
-      'default_store' => 'CompanyName/StoreName', // required, store you're currently working on
+      'default_store' => 'Default Store View', // required, store you're currently working on
       'localization' => 'en_US', // default localization code
       'composer_files' => 1, // 1 or 0, 1 creates a composer.json on new modules
       'module_version' => '0.0.1', // default version of new modules 
