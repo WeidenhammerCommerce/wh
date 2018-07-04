@@ -147,7 +147,6 @@ $ %command.full_name% <info>cloud</info> List of Magento Cloud commands
 $ %command.full_name% <info>dump</info> Creates dump of the database
 $ %command.full_name% <info>module:downgrade (m:d)</info> <question>[name of module]</question> Downgrades version of the database module to the one on the code (useful after changing branches)
 $ %command.full_name% <info>tools:regenerate (t:r)</info> <question>[store]</question> Regenerate URL rewrites of products/categories in all/specific store/s
-$ %command.full_name% <info>tools:permissions (t:p)</info> Set proper permissions to all files and folders
 $ %command.full_name% <info>deploy:mode (d:m)</info> <question>[mode name]</question> Deploy to given mode (show, developer or production) 
 $ %command.full_name% <info>snippets (sn)</info> <question>[snippet]</question> Show M2 snippets
 
@@ -1091,7 +1090,6 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
              * Override template
              * Examples:
              * - vendor/magento/module-checkout/view/frontend/templates/cart.phtml
-             * @todo: copy the file automatically
              */
             case 'override:template' :
             case 'o:template' : case 'override:t' :
@@ -1461,20 +1459,6 @@ Remember to remove the Magento copyright from the top of the file.
                 $output->writeln('Cache refreshing...');
                 shell_exec($this->storeInfo->getBinMagento().' cache:flush');
                 $output->writeln('The reindexation finished successfully.');
-                break;
-
-
-            /**
-             * Set write permissions
-             */
-            case 'tools:permissions' :
-            case 'tools:p' : case 't:permissions' :
-            case 't:p' :
-                $output->writeln('Setting proper permissions for <info>M2</info> files and folders, please wait...');
-                shell_exec('sudo find . -type f -exec chmod 660 {} ";" && sudo find . -type d -exec chmod 770 {} ";"');
-                shell_exec('sudo chmod -R 777 app/etc pub/media pub/static generated var');
-                shell_exec('chmod u+x bin/magento');
-                $output->writeln('Proper permissions given to all <info>M2</info> files and folders');
                 break;
 
 

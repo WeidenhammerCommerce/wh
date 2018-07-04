@@ -45,7 +45,7 @@ $ composer require hammer/wh:dev-master
   )  
 ```
 Notes for faster development
-1) We recommend creating an system alias for "bin/magento". Example: "bm"
+1) We recommend creating a system alias for "bin/magento". Example: "bm"
 2) If multistore, we recommend setting the "default_theme" config along with "ask_if_multistore=0"
 
 
@@ -80,7 +80,7 @@ Note: remember to always develop in *Developer* mode
 $ bin/magento wh --help
 ```
 
-### Show full list to select an option with
+### Show all available commands with an option to select it
 
 ```
 $ bin/magento wh options (alias op)
@@ -211,14 +211,14 @@ $ bin/magento wh customer:password (alias c:p)
 * (string) Username
 * (string) Password
 ```
-$ bin/magento wh customer:create (alias a:cr)
+$ bin/magento wh admin:create (alias a:cr)
 ```
 
 ### Update password of existing admin user
 * (string) Email of existing admin user (autocomplete)
 * (string) New password
 ```
-$ bin/magento wh customer:password (alias a:p)
+$ bin/magento wh admin:password (alias a:p)
 ```
 
 
@@ -276,6 +276,7 @@ $ bin/magento wh dump
 ```
 
 ### Downgrades version of the database module to the one on the code
+(useful after changing branches)
 * (string) Name of the existing module
 ```
 $ bin/magento wh module:downgrade (alias m:d)
@@ -285,11 +286,6 @@ $ bin/magento wh module:downgrade (alias m:d)
 * (multiselect) Store
 ```
 $ bin/magento wh tools:regenerate (alias t:r)
-```
-
-### Set proper permissions to all files and folders
-```
-$ bin/magento wh tools:permissions (alias t:p)
 ```
 
 ### Deploy to given mode
@@ -305,6 +301,8 @@ $ bin/magento wh snippets (alias sn)
 ```
 
 
+# Send us your feedback!
+:email: wh@magento.com.ar
 
 
 # ¯\\\_(ツ)\_/¯
