@@ -173,6 +173,11 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/save_db_folder');
     }
 
+    public function getDisplayHandles()
+    {
+        return $this->deploymentConfig->get('wh/display_handles');
+    }
+
     public function getMagentoCloud()
     {
         return $this->deploymentConfig->get('wh/magento_cloud');

@@ -82,7 +82,8 @@ class Cache
         $this->deleteDirectory($this->varViewPreprocessed);
 
         if($this->storeInfo->getMagentoCloud()) {
-            $this->deleteDirectory($this->generatedCompany);
+            $this->deleteDirectory($this->generated);
+            //$this->deleteDirectory($this->generatedCompany);
         }
     }
 

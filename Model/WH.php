@@ -710,12 +710,13 @@ EOF
                         $input, $output
                     );
                     if(strtolower($enableOption) == 'y') {
-                        if(!$this->storeInfo->getMagentoCloud()) {
-                            echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
-                        } else {
+                        if($this->storeInfo->getMagentoCloud()) {
                             // If Cloud, use composer
-                            echo shell_exec('composer require '.strtolower($this->storeInfo->getCompanyName()).'/'.strtolower($moduleName));
+                            $package = strtolower($this->storeInfo->getCompanyName()).'/'.strtolower($moduleName);
+                            echo shell_exec('composer require '.$package.' --no-update');
+                            echo shell_exec('composer update '.$package);
                         }
+                        echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
                         echo shell_exec($this->storeInfo->getBinMagento().' s:up');
                     }
 

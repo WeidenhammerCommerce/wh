@@ -9,6 +9,10 @@
         </arguments>
     </type>
 
+    <!-- Display all handles at the top of the page -->
+    <preference for="Magento\Framework\View\Model\Layout\Merge"
+                type="Hammer\WH\Model\Handles"/>
+
     <!-- Add new console style formats -->
     <!--<preference for="Symfony\Component\Console\Formatter\OutputFormatter"
         type="Hammer\WH\Settings\WHOutputFormatter"/>-->
