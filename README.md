@@ -1,6 +1,10 @@
 ## ¯\ \_(ツ)_/¯
 ## WH creates a new shell command {wh} with a handful of M2 tools
 
+## v.0.1.3
+
+- Added config option to display all layout handles at the top of the page
+
 ## v.0.1.1
 
 - Added the {tools:regenerate} command
@@ -13,22 +17,17 @@
 
 - Added the {cloud} command
 
-## v.0.0.6
-
-- Started using the env.php file to stored user variables
-- Added the {create:dump} command
-
 ## :eye: Installation
 
 - Go to your Magento root folder and run:
 ```
 $ composer require hammer/wh:dev-master
 ```
-- Enter your Company name and other optional parameters in the following array, and add it to the app/etc/env.php file:
+- Enter your Company name, theme, store and other optional parameters in the following array, and add it to the app/etc/env.php file:
 ```
 'wh' =>
   array (
-      'company_name' => 'CompanyName', // required, where you place your modules (app/code/[CompanyName])
+      'company_name' => 'CompanyName', // required, where you place your modules (app/code/[CompanyName] or extensions/[CompanyName])
       'default_theme' => 'CompanyName/ThemeName', // required, theme you're currently working on
       'default_store' => 'Default Store View', // required, store you're currently working on
       'localization' => 'en_US', // default localization code
