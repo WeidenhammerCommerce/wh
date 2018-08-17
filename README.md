@@ -38,7 +38,8 @@ $ composer require hammer/wh:dev-master
       'view_product_link' => 1, // 1 or 0, 1 shows 'View Product' link on Admin
       'ask_if_multistore' => 0, // 1 or 0, 1 asks for desired theme/store if multistore
       'save_db_folder' => 'var/dump', // folder to save the database dump
-      'display_handles' => 0, // display all layout handles at the top of all pages 
+      'display_handles' => 0, // display all layout handles at the top of all pages
+      'admin_credentials' => 'username::password', // display credentials on the admin login page 
       'magento_cloud' => 0, // 1 or 0, 1 if using Magento Cloud	
       'magento_cloud_project_id' => '', // magento cloud project ID, if any
       'magento_command' => 'bin/magento' // magento command line

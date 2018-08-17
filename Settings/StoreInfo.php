@@ -178,6 +178,29 @@ class StoreInfo
         return $this->deploymentConfig->get('wh/display_handles');
     }
 
+    public function getAdminCredentials()
+    {
+        return $this->deploymentConfig->get('wh/admin_credentials');
+    }
+
+    public function getAdminUsername()
+    {
+        $adminCredentials = $this->getAdminCredentials();
+        if(!$adminCredentials) return null;
+
+        $credentials = explode('::', $adminCredentials);
+        return current($credentials);
+    }
+
+    public function getAdminPassword()
+    {
+        $adminCredentials = $this->getAdminCredentials();
+        if(!$adminCredentials) return null;
+
+        $credentials = explode('::', $adminCredentials);
+        return end($credentials);
+    }
+
     public function getMagentoCloud()
     {
         return $this->deploymentConfig->get('wh/magento_cloud');
