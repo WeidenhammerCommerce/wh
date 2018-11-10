@@ -122,6 +122,12 @@ $ bin/magento wh cache:templates (alias c:t)
 $ bin/magento wh cache:layouts (alias c:l)
 ```
 
+### Removes the specific cache to regenerate the DI
+
+```
+$ bin/magento wh cache:generated (alias c:g)
+```
+
 ### Removes the specific cache to regenerate the styles
 * (string) Name of the theme
 

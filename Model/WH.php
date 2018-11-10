@@ -123,6 +123,7 @@ $ %command.full_name% <info>info:modules (i:m)</info> <question>[type of modules
 <comment>Cache</comment>
 $ %command.full_name% <info>clean:templates (c:t)</info> Removes the specific cache to regenerate the templates
 $ %command.full_name% <info>clean:layouts (c:l)</info> Removes the specific cache to regenerate the layouts
+$ %command.full_name% <info>clean:generated (c:g)</info> Removes the specific cache to regenerate the Dependency Injection
 $ %command.full_name% <info>clean:styles (c:s)</info> <question>[name of theme]</question> Removes the specific cache to regenerate the CSS styles
 $ %command.full_name% <info>clean:all (c:a)</info> Removes all cache (everything within /var and /pub/static)
 $ %command.full_name% <info>clean:custom (c:c)</info> Removes selected cache (separated by comma)
@@ -340,6 +341,17 @@ EOF
             case 'c:t' : case 'c:l' :
                 $this->cache->removeBasicCache();
                 $output->writeln('<info>Cache cleared.</info>');
+                break;
+
+
+            /**
+             * Clean cache for Dependency Injection
+             */
+            case 'clean:generated' :
+            case 'c:generated' : case 'clean:g' :
+            case 'c:g' :
+                $this->cache->removeGeneratedCache();
+                $output->writeln('<info>Generated cache cleared.</info>');
                 break;
 
 
@@ -1624,7 +1636,7 @@ Remember to remove the Magento copyright from the top of the file.
 
                     case 11 :
                         $output->writeln('<title>[CMS Page/Block] Show CMS Block</title>
-{{block class="Magento\\Cms\\Block\\Block" block_id="block_identifier"}}');
+{{block id="block_identifier"}} or {{block class="Magento\\Cms\\Block\\Block" block_id="block_identifier"}}');
                         break;
 
                     case 12 :
