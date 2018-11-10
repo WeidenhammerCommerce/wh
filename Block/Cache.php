@@ -66,6 +66,21 @@ class Cache
 
 
     /**
+     * Remove cache for Dependency Injection
+     */
+    public function removeGeneratedCache()
+    {
+        $this->deleteDirectory($this->varCache);
+        $this->deleteDirectory($this->varPageCache);
+        $this->deleteDirectory($this->varGeneration);
+
+        if($this->storeInfo->getMagentoCloud()) {
+            $this->deleteDirectory($this->generated);
+        }
+    }
+
+
+    /**
      * Remove cache for Templates & Layouts
      * @param $theme
      */
