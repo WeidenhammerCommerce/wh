@@ -1529,6 +1529,7 @@ Remember to remove the Magento copyright from the top of the file.
                     '<info>[Layout]</info> Remove <comment>Block</comment>',
 
                     '<info>[Template]</info> Show <comment>theme\'s image</comment>',
+                    '<info>[Template]</info> Show <comment>wysiwyg\'s image</comment>',
                     '<info>[Template]</info> Show <comment>store\'s link</comment>',
                     '<info>[Template]</info> Show <comment>CMS Block</comment>',
 
@@ -1620,36 +1621,48 @@ Remember to remove the Magento copyright from the top of the file.
                         break;
 
                     case 8 :
+                        $output->writeln('<title>[Template] Show wysiwyg\'s image</title>
+public function getWysiwygUrl($image)
+{
+    // \Magento\Store\Model\StoreManagerInterface $storeManager
+    $currentStore = $this->storeManager->getStore();
+    $media = $currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+
+    return $media.\'wysiwyg/\'.$image;
+}');
+                        break;
+
+                    case 9 :
                         $output->writeln('<title>[Template] Show link</title>
 <?php echo $block->getUrl(\'checkout/cart\', [\'_secure\' => true]); ?>');
                         break;
 
-                    case 9 :
+                    case 10 :
                         $output->writeln('<title>[Template] Show CMS Block</title>
 <?php echo $block->getLayout()->createBlock(\'Magento\Cms\Block\Block\')->setBlockId(\'block_identifier\')->toHtml(); ?>');
                         break;
 
-                    case 10 :
+                    case 11 :
                         $output->writeln('<title>[CMS Page/Block] Show Template</title>
 {{block class="'.$companyName.'\MyModule\Block\MyBlock" template="'.$companyName.'_MyModule::template.phtml"}}');
                         break;
 
-                    case 11 :
+                    case 12 :
                         $output->writeln('<title>[CMS Page/Block] Show CMS Block</title>
 {{block id="block_identifier"}} or {{block class="Magento\\Cms\\Block\\Block" block_id="block_identifier"}}');
                         break;
 
-                    case 12 :
+                    case 13 :
                         $output->writeln('<title>[CMS Page/Block] Show theme\'s image</title>
 {{view url=\'images/some_image.jpg\'}}');
                         break;
 
-                    case 13 :
+                    case 14 :
                         $output->writeln('<title>[CMS Page/Block] Show store\'s link</title>
 {{store url="checkout/cart"}}');
                         break;
 
-                    case 14 :
+                    case 15 :
                         $output->writeln('<title>[CMS Page/Block] Show store\'s information</title>
 {{config path=\'general/store_information/phone\'}}');
                         break;
