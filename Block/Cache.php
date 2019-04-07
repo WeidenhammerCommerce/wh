@@ -70,8 +70,7 @@ class Cache
      */
     public function removeGeneratedCache()
     {
-        $this->deleteDirectory($this->varCache);
-        $this->deleteDirectory($this->varPageCache);
+        $this->removeBasicCache();
         $this->deleteDirectory($this->varGeneration);
 
         if($this->storeInfo->getMagentoCloud()) {
@@ -92,8 +91,7 @@ class Cache
             $this->deleteDirectory($pubCss);
         }
 
-        $this->deleteDirectory($this->varCache);
-        $this->deleteDirectory($this->varPageCache);
+        $this->removeBasicCache();
         $this->deleteDirectory($this->varViewPreprocessed);
 
         if($this->storeInfo->getMagentoCloud()) {
@@ -108,9 +106,8 @@ class Cache
      */
     public function removeAllCache()
     {
+        $this->removeBasicCache();
         $this->deleteDirectory($this->pubStatic);
-        $this->deleteDirectory($this->varCache);
-        $this->deleteDirectory($this->varPageCache);
         $this->deleteDirectory($this->varViewPreprocessed);
         $this->deleteDirectory($this->varGeneration);
         $this->deleteDirectory($this->generated);
@@ -167,9 +164,8 @@ class Cache
             endif;
         endforeach;
 
-        if(!$this->dirIsEmpty($path)) {
-            return true;
-        }
+        if(!file_exists($path)) return true;
+        if(!$this->dirIsEmpty($path)) return true;
 
         try {
             rmdir($path);

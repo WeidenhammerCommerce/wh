@@ -333,14 +333,50 @@ EOF
              **********************************************************************************************************/
 
             /**
-             * Clean cache for Templates & Layouts
+             * Clean cache for Templates
              */
-            case 'clean:templates' : case 'clean:layouts' :
-            case 'c:templates' : case 'c:layouts' :
-            case 'clean:t' : case 'clean:l' :
-            case 'c:t' : case 'c:l' :
+            case 'clean:templates' :
+            case 'c:templates' :
+            case 'clean:t' :
+            case 'c:t' :
+                $this->shellM2Command('c:c block_html');
+                $output->writeln('<info>Templates cache cleared.</info>');
+                break;
+
+
+            /**
+             * Clean cache for Layouts
+             */
+            case 'clean:layouts' :
+            case 'c:layouts' :
+            case 'clean:l' :
+            case 'c:l' :
+            $this->shellM2Command('c:c layout');
+            $output->writeln('<info>Layouts cache cleared.</info>');
+            break;
+
+
+            /**
+             * Clean cache for Config
+             */
+            case 'clean:config' :
+            case 'c:config' :
+            case 'clean:c' :
+            case 'c:c' :
+                $this->shellM2Command('c:c config full_page');
+                $output->writeln('<info>Config/Full Page cache cleared.</info>');
+                break;
+
+
+            /**
+             * Clean cache for Var
+             */
+            case 'clean:var' :
+            case 'c:var' :
+            case 'clean:v' :
+            case 'c:v' :
                 $this->cache->removeBasicCache();
-                $output->writeln('<info>Cache cleared.</info>');
+                $output->writeln('<info>Var/Cache & Var/Page_Cache cleared.</info>');
                 break;
 
 
@@ -395,8 +431,8 @@ EOF
              * Clean custom cache
              */
             case 'clean:custom' :
-            case 'c:custom' : case 'clean:c' :
-            case 'c:c' :
+            case 'c:custom' : case 'clean:cu' :
+            case 'c:cu' :
                 $dialog = $this->getHelper('dialog');
                 $cacheFolders = array(
                     'cache',
@@ -725,11 +761,11 @@ EOF
                         if($this->storeInfo->getMagentoCloud()) {
                             // If Cloud, use composer
                             $package = strtolower($this->storeInfo->getCompanyName()).'/'.strtolower($moduleName);
-                            echo shell_exec('composer require '.$package.' --no-update');
-                            echo shell_exec('composer update '.$package);
+                            $this->shellCommand('composer require '.$package.' --no-update');
+                            $this->shellCommand('composer update '.$package);
                         }
-                        echo shell_exec($this->storeInfo->getBinMagento().' module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
-                        echo shell_exec($this->storeInfo->getBinMagento().' s:up');
+                        $this->shellM2Command('module:enable '.$this->storeInfo->getCompanyName().'_'.$moduleName);
+                        $this->shellM2Command('s:up');
                     }
 
                     $output->writeln('');
@@ -1002,16 +1038,16 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
                     $output->writeln('<error>You must enter a Password for the new admin user</error>');
                     break;
                 }
-                
-                $command = $this->storeInfo->getBinMagento();
-                $command .= ' admin:user:create';
+
+                // Create command
+                $command  = ' admin:user:create';
                 $command .= ' --admin-user="'.$username.'"';
                 $command .= ' --admin-password="'.$password.'"';
                 $command .= ' --admin-email="'.$email.'"';
                 $command .= ' --admin-firstname="'.$firstname.'"';
                 $command .= ' --admin-lastname="'.$lastname.'"';
 
-                echo shell_exec($command);
+                $this->shellM2Command($command);
                 break;
 
 
@@ -1096,7 +1132,7 @@ Don\'t forget to reindex (<info>'.$this->storeInfo->getBinMagento().' indexer:re
                 $forceOption = strtolower($forceOption) == 'y' ? ' -f' : '';
 
                 $output->writeln('Deploying static content for the theme <info>'.$dftTheme.'</info>, please wait');
-                echo shell_exec($this->storeInfo->getBinMagento().' setup:static-content:deploy --area frontend --theme '.$theme . $forceOption);
+                $this->shellM2Command('setup:static-content:deploy --area frontend --theme '.$theme . $forceOption);
                 break;
 
             /**
@@ -1151,7 +1187,7 @@ Remember to remove the Magento copyright from the top of the file.
              */
             case 'hints:on' :
             case 'h:on' :
-                echo shell_exec($this->storeInfo->getBinMagento().' dev:template-hints:enable');
+                $this->shellM2Command('dev:template-hints:enable');
                 $this->cache->removeBasicCache();
                 break;
 
@@ -1161,7 +1197,7 @@ Remember to remove the Magento copyright from the top of the file.
              */
             case 'hints:off' :
             case 'h:off' :
-                echo shell_exec($this->storeInfo->getBinMagento().' dev:template-hints:disable');
+                $this->shellM2Command('dev:template-hints:disable');
                 $this->cache->removeBasicCache();
                 break;
 
@@ -1184,7 +1220,7 @@ Remember to remove the Magento copyright from the top of the file.
                     break;
                 }
 
-                echo shell_exec('magento-cloud');
+                $this->shellCommand('magento-cloud');
 
                 $output->writeln('');
                 $dialog = $this->getHelper('dialog');
@@ -1256,51 +1292,51 @@ Remember to remove the Magento copyright from the top of the file.
                 switch($selected) :
                     case 0 :
                         // See project info
-                        echo shell_exec('magento-cloud project:info -p '.$projectId);
+                        $this->shellCommand('magento-cloud project:info -p '.$projectId);
                         break;
                     case 1 :
                         // See your account info
-                        echo shell_exec('magento-cloud auth:info');
+                        $this->shellCommand('magento-cloud auth:info');
                         break;
                     case 2 :
                         // See all users
-                        echo shell_exec('magento-cloud user:list -p '.$projectId);
+                        $this->shellCommand('magento-cloud user:list -p '.$projectId);
                         break;
                     case 3 :
                         // See all envs
-                        echo shell_exec('magento-cloud environments -p '.$projectId);
+                        $this->shellCommand('magento-cloud environments -p '.$projectId);
                         break;
                     case 4 :
                         // See env info
-                        echo shell_exec('magento-cloud environment:info -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud environment:info -p '.$projectId.' -e '.$envName);
                         break;
                     case 5 :
                         // See envs URLs
-                        echo shell_exec('magento-cloud environment:url -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud environment:url -p '.$projectId.' -e '.$envName);
                         break;
                     case 6 :
                         // See envs logs
-                        echo shell_exec('magento-cloud environment:logs -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud environment:logs -p '.$projectId.' -e '.$envName);
                         break;
                     case 7 :
                         // See envs activity
-                        echo shell_exec('magento-cloud activity:list -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud activity:list -p '.$projectId.' -e '.$envName);
                         break;
                     case 8 :
                         // Create branch
-                        echo shell_exec('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
+                        $this->shellCommand('magento-cloud environment:branch -p '.$projectId.' '.$branchName.' '.$masterBranch);
                         break;
                     case 9 :
                         // Push current branch
-                        echo shell_exec('magento-cloud environment:push');
+                        $this->shellCommand('magento-cloud environment:push');
                         break;
                     case 10 :
                         // Activate env
-                        echo shell_exec('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud activate:environment -p '.$projectId.' -e '.$envName);
                         break;
                     case 11 :
                         // Download env dump
-                        echo shell_exec('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
+                        $this->shellCommand('magento-cloud db:dump -p '.$projectId.' -e '.$envName);
                         break;
                     case 12 :
                         // Connect through SSH
@@ -1352,9 +1388,9 @@ Remember to remove the Magento copyright from the top of the file.
                 }
 
                 $destination = $backupsDir . '/' . $filename;
-                $commmand = 'mysqldump -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname . ' >>' . $destination;
+                $command = 'mysqldump -u' . $user . ' -h' . $host . ' -p' . $pass . ' ' . $dbname . ' >>' . $destination;
 
-                shell_exec($commmand);
+                shell_exec($command);
 
                 $output->writeln('Dump saved in <info>'.$destination.'</info>');
                 break;
@@ -1500,15 +1536,15 @@ Remember to remove the Magento copyright from the top of the file.
                 switch($selected) :
                     case 0 :
                         // Show current mode
-                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:show');
+                        $this->shellM2Command('deploy:mode:show');
                         break;
                     case 1 :
                         // Set to Developer
-                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:set developer');
+                        $this->shellM2Command('deploy:mode:set developer');
                         break;
                     case 2 :
                         // Set to Production
-                        echo shell_exec($this->storeInfo->getBinMagento().' deploy:mode:set production');
+                        $this->shellM2Command('deploy:mode:set production');
                         break;
                 endswitch;
                 break;
@@ -1725,91 +1761,91 @@ public function getWysiwygUrl($image)
 
                 switch ($selected) :
                     case 0 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:m2');
+                        $this->shellM2Command('wh i:m2');
                         break;
                     case 1 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:s');
+                        $this->shellM2Command('wh i:s');
                         break;
                     case 2 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh i:m');
+                        $this->shellM2Command('wh i:m');
                         break;
 
                     case 3 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:t');
+                        $this->shellM2Command('wh c:t');
                         break;
                     case 4 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:l');
+                        $this->shellM2Command('wh c:l');
                         break;
                     case 5 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:s');
+                        $this->shellM2Command('wh c:s');
                         break;
                     case 6 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:a');
+                        $this->shellM2Command('wh c:a');
                         break;
                     case 7 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:c');
+                        $this->shellM2Command('wh c:c');
                         break;
                     case 8 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:ad');
+                        $this->shellM2Command('wh c:ad');
                         break;
 
                     case 9 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:m');
+                        $this->shellM2Command('wh cr:m');
                         break;
                     case 10 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:t');
+                        $this->shellM2Command('wh cr:t');
                         break;
                     case 11 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh cr:d');
+                        $this->shellM2Command('wh cr:d');
                         break;
 
                     case 12 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:cr');
+                        $this->shellM2Command('wh c:cr');
                         break;
                     case 13 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh c:p');
+                        $this->shellM2Command('wh c:p');
                         break;
 
                     case 14 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh a:cr');
+                        $this->shellM2Command('wh a:cr');
                         break;
                     case 15 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh a:p');
+                        $this->shellM2Command('wh a:p');
                         break;
 
                     case 16 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:s');
+                        $this->shellM2Command('wh t:s');
                         break;
                     case 17 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh o:t');
+                        $this->shellM2Command('wh o:t');
                         break;
                     case 18 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh h:on');
+                        $this->shellM2Command('wh h:on');
                         break;
                     case 19 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh h:off');
+                        $this->shellM2Command('wh h:off');
                         break;
 
                     case 20 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh cloud');
+                        $this->shellM2Command('wh cloud');
                         break;
                     case 21 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh dump');
+                        $this->shellM2Command('wh dump');
                         break;
                     case 22 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh m:d');
+                        $this->shellM2Command('wh m:d');
                         break;
                     case 23 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:r');
+                        $this->shellM2Command('wh t:r');
                         break;
                     case 24 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh t:p');
+                        $this->shellM2Command('wh t:p');
                         break;
                     case 25 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh d:m');
+                        $this->shellM2Command('wh d:m');
                         break;
                     case 26 :
-                        echo shell_exec($this->storeInfo->getBinMagento().' wh sn');
+                        $this->shellM2Command('wh sn');
                         break;
                 endswitch;
                 $output->writeln('');
@@ -1851,6 +1887,25 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
         endswitch;
     }
 
+
+    /**
+     * Execute regular shell command
+     * @param $command
+     */
+    protected function shellCommand($command)
+    {
+        echo shell_exec($command);
+    }
+
+    /**
+     * Execute M2 shell command
+     * @param $command
+     */
+    protected function shellM2Command($command)
+    {
+        echo shell_exec($this->storeInfo->getBinMagento() . ' ' . $command);
+    }
+
     /**
      * @param $question
      * @param $defaultValue
@@ -1858,7 +1913,7 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
      * @param $output
      * @return mixed
      */
-    private function askQuestion($question, $defaultValue, $input, $output)
+    protected function askQuestion($question, $defaultValue, $input, $output)
     {
         $helper = $this->getHelper('question');
         $questionObj = new Question($question.' ', $defaultValue);
@@ -1870,7 +1925,7 @@ Please check the WH documentation: https://github.com/WeidenhammerCommerce/wh/bl
      * Options: symfony/console/Symfony/Component/Console/Formatter/OutputFormatterStyle.php
      * @param $output
      */
-    private function setCustomStyles($output)
+    protected function setCustomStyles($output)
     {
         $style = new OutputFormatterStyle('blue', 'black', array('bold', 'underscore'));
         $output->getFormatter()->setStyle('title', $style);
