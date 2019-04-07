@@ -123,10 +123,12 @@ $ %command.full_name% <info>info:modules (i:m)</info> <question>[type of modules
 <comment>Cache</comment>
 $ %command.full_name% <info>clean:templates (c:t)</info> Removes the specific cache to regenerate the templates
 $ %command.full_name% <info>clean:layouts (c:l)</info> Removes the specific cache to regenerate the layouts
-$ %command.full_name% <info>clean:generated (c:g)</info> Removes the specific cache to regenerate the Dependency Injection
+$ %command.full_name% <info>clean:config (c:c)</info> Removes the specific cache after changing admin configurations
+$ %command.full_name% <info>clean:var (c:v)</info> Removes var/cache & var/page_cache
+$ %command.full_name% <info>clean:generated (c:g)</info> Removes the specific cache to regenerate the DI
 $ %command.full_name% <info>clean:styles (c:s)</info> <question>[name of theme]</question> Removes the specific cache to regenerate the CSS styles
 $ %command.full_name% <info>clean:all (c:a)</info> Removes all cache (everything within /var and /pub/static)
-$ %command.full_name% <info>clean:custom (c:c)</info> Removes selected cache (separated by comma)
+$ %command.full_name% <info>clean:custom (c:cu)</info> Removes selected cache (separated by comma)
 $ %command.full_name% <info>clean:admin (c:ad)</info> Removes the specific cache to regenerate the admin
 <comment>Creation</comment>
 $ %command.full_name% <info>create:module (cr:m)</info> <question>[module options]</question> Creates a new module
@@ -1719,34 +1721,36 @@ public function getWysiwygUrl($image)
                     '<info>[Info]</info> List modules (with its code version) <comment>[i:m]</comment>', // 2
 
                     '<info>[Cache]</info> Remove to regenerate the templates <comment>[c:t]</comment>', // 3
-                    '<info>[Cache]</info> Remove to regenerate the layouts <comment>[c:t]</comment>', // 4
-                    '<info>[Cache]</info> Remove regenerate the CSS styles <comment>[c:s]</comment>', // 5
-                    '<info>[Cache]</info> Remove all (everything within /var and /pub/static) <comment>[c:a]</comment>', // 6
-                    '<info>[Cache]</info> Remove selected (one or more, separated by comma) <comment>[c:c]</comment>', // 7
-                    '<info>[Cache]</info> Remove regenerate the admin <comment>[c:ad]</comment>', // 8
+                    '<info>[Cache]</info> Remove to regenerate the layouts <comment>[c:l]</comment>', // 4
+                    '<info>[Cache]</info> Remove cache after changing admin configuration <comment>[c:c]</comment>', // 5
+                    '<info>[Cache]</info> Remove var/cache & var/page_cache <comment>[c:v]</comment>', // 6
+                    '<info>[Cache]</info> Remove regenerate the CSS styles <comment>[c:s]</comment>', // 7
+                    '<info>[Cache]</info> Remove all (everything within /var and /pub/static) <comment>[c:a]</comment>', // 8
+                    '<info>[Cache]</info> Remove selected (one or more, separated by comma) <comment>[c:cu]</comment>', // 9
+                    '<info>[Cache]</info> Remove regenerate the admin <comment>[c:ad]</comment>', // 10
 
-                    '<info>[Creation]</info> New module <comment>[cr:m]</comment>', // 9
-                    '<info>[Creation]</info> New theme <comment>[cr:t]</comment>', // 10
-                    '<info>[Creation]</info> Dummy categories/products <comment>[cr:d]</comment>', // 11
+                    '<info>[Creation]</info> New module <comment>[cr:m]</comment>', // 11
+                    '<info>[Creation]</info> New theme <comment>[cr:t]</comment>', // 12
+                    '<info>[Creation]</info> Dummy categories/products <comment>[cr:d]</comment>', // 13
 
-                    '<info>[Customer]</info> Create <comment>[c:cr]</comment>', // 12
-                    '<info>[Customer]</info> Update password <comment>[c:p]</comment>', // 13
+                    '<info>[Customer]</info> Create <comment>[c:cr]</comment>', // 14
+                    '<info>[Customer]</info> Update password <comment>[c:p]</comment>', // 15
 
-                    '<info>[Admin]</info> Create user <comment>[a:cr]</comment>', // 14
-                    '<info>[Admin]</info> Update password <comment>[a:p]</comment>', // 15
+                    '<info>[Admin]</info> Create user <comment>[a:cr]</comment>', // 16
+                    '<info>[Admin]</info> Update password <comment>[a:p]</comment>', // 17
 
-                    '<info>[Frontend]</info> Deploy static content <comment>[t:s]</comment>', // 16
-                    '<info>[Frontend]</info> Copy core template to theme to override it <comment>[o:t]</comment>', // 17
-                    '<info>[Frontend]</info> Enable the Template Hints <comment>[h:on]</comment>', // 18
-                    '<info>[Frontend]</info> Disable the Template Hints <comment>[h:off]</comment>', // 19
+                    '<info>[Frontend]</info> Deploy static content <comment>[t:s]</comment>', // 18
+                    '<info>[Frontend]</info> Copy core template to theme to override it <comment>[o:t]</comment>', // 19
+                    '<info>[Frontend]</info> Enable the Template Hints <comment>[h:on]</comment>', // 20
+                    '<info>[Frontend]</info> Disable the Template Hints <comment>[h:off]</comment>', // 21
 
-                    '<info>[Tools]</info> List of Magento Cloud commands <comment>[cloud]</comment>', // 20
-                    '<info>[Tools]</info> Dump of database in '.$this->storeInfo->getSaveDatabaseFolder().' folder <comment>[dump]</comment>', // 21
-                    '<info>[Tools]</info> Downgrades version of the database module to the one on the code <comment>[m:d]</comment>', // 22
-                    '<info>[Tools]</info> Regenerate URL rewrites of products/categories in all/specific store/s <comment>[t:r]</comment>', // 23
-                    '<info>[Tools]</info> Set proper permissions to all files and folders <comment>[t:p]</comment>', // 24
-                    '<info>[Tools]</info> Deploy to given mode (show, developer or production) <comment>[d:m]</comment>', // 25
-                    '<info>[Tools]</info> Show snippets <comment>[sn]</comment>' // 26
+                    '<info>[Tools]</info> List of Magento Cloud commands <comment>[cloud]</comment>', // 22
+                    '<info>[Tools]</info> Dump of database in '.$this->storeInfo->getSaveDatabaseFolder().' folder <comment>[dump]</comment>', // 23
+                    '<info>[Tools]</info> Downgrades version of the database module to the one on the code <comment>[m:d]</comment>', // 24
+                    '<info>[Tools]</info> Regenerate URL rewrites of products/categories in all/specific store/s <comment>[t:r]</comment>', // 25
+                    '<info>[Tools]</info> Set proper permissions to all files and folders <comment>[t:p]</comment>', // 26
+                    '<info>[Tools]</info> Deploy to given mode (show, developer or production) <comment>[d:m]</comment>', // 27
+                    '<info>[Tools]</info> Show snippets <comment>[sn]</comment>' // 28
                 );
                 $selected = $dialog->select(
                     $output,
@@ -1777,74 +1781,80 @@ public function getWysiwygUrl($image)
                         $this->shellM2Command('wh c:l');
                         break;
                     case 5 :
-                        $this->shellM2Command('wh c:s');
-                        break;
-                    case 6 :
-                        $this->shellM2Command('wh c:a');
-                        break;
-                    case 7 :
                         $this->shellM2Command('wh c:c');
                         break;
+                    case 6 :
+                        $this->shellM2Command('wh c:v');
+                        break;
+                    case 7 :
+                        $this->shellM2Command('wh c:s');
+                        break;
                     case 8 :
+                        $this->shellM2Command('wh c:a');
+                        break;
+                    case 9 :
+                        $this->shellM2Command('wh c:cu');
+                        break;
+                    case 10 :
                         $this->shellM2Command('wh c:ad');
                         break;
 
-                    case 9 :
+                    case 11 :
                         $this->shellM2Command('wh cr:m');
                         break;
-                    case 10 :
+                    case 12 :
                         $this->shellM2Command('wh cr:t');
                         break;
-                    case 11 :
+                    case 13 :
                         $this->shellM2Command('wh cr:d');
                         break;
 
-                    case 12 :
+                    case 14 :
                         $this->shellM2Command('wh c:cr');
                         break;
-                    case 13 :
+                    case 15 :
                         $this->shellM2Command('wh c:p');
                         break;
 
-                    case 14 :
+                    case 16 :
                         $this->shellM2Command('wh a:cr');
                         break;
-                    case 15 :
+                    case 17 :
                         $this->shellM2Command('wh a:p');
                         break;
 
-                    case 16 :
+                    case 18 :
                         $this->shellM2Command('wh t:s');
                         break;
-                    case 17 :
+                    case 19 :
                         $this->shellM2Command('wh o:t');
                         break;
-                    case 18 :
+                    case 20 :
                         $this->shellM2Command('wh h:on');
                         break;
-                    case 19 :
+                    case 21 :
                         $this->shellM2Command('wh h:off');
                         break;
 
-                    case 20 :
+                    case 22 :
                         $this->shellM2Command('wh cloud');
                         break;
-                    case 21 :
+                    case 23 :
                         $this->shellM2Command('wh dump');
                         break;
-                    case 22 :
+                    case 24 :
                         $this->shellM2Command('wh m:d');
                         break;
-                    case 23 :
+                    case 25 :
                         $this->shellM2Command('wh t:r');
                         break;
-                    case 24 :
+                    case 26 :
                         $this->shellM2Command('wh t:p');
                         break;
-                    case 25 :
+                    case 27 :
                         $this->shellM2Command('wh d:m');
                         break;
-                    case 26 :
+                    case 28 :
                         $this->shellM2Command('wh sn');
                         break;
                 endswitch;

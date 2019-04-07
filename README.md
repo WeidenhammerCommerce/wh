@@ -122,6 +122,18 @@ $ bin/magento wh cache:templates (alias c:t)
 $ bin/magento wh cache:layouts (alias c:l)
 ```
 
+### Removes the specific cache after changing admin configurations
+
+```
+$ bin/magento wh cache:config (alias c:c)
+```
+
+### Removes var/cache & var/page_cache
+
+```
+$ bin/magento wh cache:layouts (alias c:v)
+```
+
 ### Removes the specific cache to regenerate the DI
 
 ```
@@ -144,7 +156,7 @@ $ bin/magento wh cache:all (alias c:a)
 ### Removes selected cache (separated by comma) 
 * (multiselect) Folders to remove (example: 1,3,5)
 ```
-$ bin/magento wh cache:custom (alias c:c)
+$ bin/magento wh cache:custom (alias c:cu)
 ```
 
 ### Removes the specific cache to regenerate the admin
